@@ -13,92 +13,82 @@ export class AppComponent implements OnInit{
   title = 'masoud-daliriyan-angular-test';
   selectedDate: Date = new Date(); // Default to today's date
   monthDays: (any)[] = []; // Allow null values in the array
-  events = [
-    {
-      start:new Date(),
-      end: new Date(),
-      title:''
-    }
-  ]
+  timeSlots:any = [];
+  viewOptions=['day','month']
+  view = 'month'
+
 
   ngOnInit(): void {
+    this.initializeTimeSlots();
     this.generateMonthDays(this.selectedDate);
   }
+  connectedLists = this.monthDays.map((_, i) => `cdk-drop-list-${i}`);
 
+
+  onCdkDropListEntered(event:any){
+    console.log('enter',event)
+  }
   generateMonthDays(date: Date): void {
     const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-    const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     const startDayOfWeek = firstDayOfMonth.getDay(); // Day of the week (0-6, where 0 is Sunday)
-    const endDayOfWeek = lastDayOfMonth.getDay();   // Day of the week for the last day of the month
 
     this.monthDays = [];
+    let day = 1 - startDayOfWeek; // Start from the first visible day (including previous month)
 
-    // Add days from the previous month
-    for (let i = startDayOfWeek; i > 0; i--) {
-      const prevDate = new Date(date.getFullYear(), date.getMonth(), 1 - i);
+    for (let i = 0; i < 35; i++) { // 4 weeks × 7 days
       this.monthDays.push({
-        date: new Date(date.getFullYear(), date.getMonth(), i),
-        events: [{ title: `Event for Day ${i}` }]
+        date: new Date(date.getFullYear(), date.getMonth(), day),
+        events: [] // Create a new array for events for each day
       });
+      day++;
     }
 
-    // Add days for the current month
-    for (let i = 1; i <= lastDayOfMonth.getDate(); i++) {
-      this.monthDays.push({
-        date: new Date(date.getFullYear(), date.getMonth(), i),
-        events: [{ title: `Event for Day ${i}` }]
-      });
-    }
-
-    // Add days from the next month to fill the last week
-    for (let i = 1; i < 7 - endDayOfWeek; i++) {
-      const nextDate = new Date(date.getFullYear(), date.getMonth() + 1, i);
-      this.monthDays.push({ date: nextDate, events: [] });
-    }
-
+    this.monthDays[3].events = [
+      {title:'A good event'}
+    ]
     console.log(this.monthDays);
   }
 
 
 
-
-  onDrop(event: CdkDragDrop<any[]>, day: any) {
-    console.log(event, day);
-
-    // Check if the event is moved within the same container
-    if (event.previousContainer === event.container) {
-      const containerData = event.container.data;
-      const prevIndex = event.previousIndex;
-      const currIndex = event.currentIndex;
-
-      // Rearrange events within the same day
-      containerData.splice(currIndex, 0, containerData.splice(prevIndex, 1)[0]);
-
-      // Update the specific day's events in the monthDays array
-      const targetDay = this.monthDays.find(d => d.date.getTime() === day.date.getTime());
-      if (targetDay) {
-        targetDay.events = [...containerData]; // Update with a new array reference
-      }
-    } else {
-      // Move events between days
-      const prevContainer = event.previousContainer.data;
-      const currContainer = event.container.data;
-
-      // Transfer the event between containers
-      transferArrayItem(prevContainer, currContainer, event.previousIndex, event.currentIndex);
-
-      // Update the previous and target days in the monthDays array
-      const previousDay = this.monthDays.find(d => d.events === prevContainer);
-      const targetDay = this.monthDays.find(d => d.date.getTime() === day.date.getTime());
-
-      if (previousDay) {
-        previousDay.events = [...prevContainer]; // Ensure immutability
-      }
-      if (targetDay) {
-        targetDay.events = [...currContainer]; // Ensure immutability
-      }
+  onDaySlotDrop(event:any,timeSlot:any){
+    if (event.previousContainer === event.container)
+    {
+      // If the item is dropped within the same container, reorder the events
+      moveItemInArray(timeSlot.events, event.previousIndex, event.currentIndex);
     }
-    console.log(this.monthDays)
+    else
+    {
+      // If the item is dropped into a different container, transfer the event
+      transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+    }
+  }
+
+  onDrop(event: CdkDragDrop<any[]>, targetDay: any) {
+    console.log(event)
+    if (event.previousContainer === event.container)
+    {
+      // If the item is dropped within the same container, reorder the events
+      moveItemInArray(targetDay.events, event.previousIndex, event.currentIndex);
+    }
+    else
+    {
+      // If the item is dropped into a different container, transfer the event
+      transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+    }
+  }
+
+  private initializeTimeSlots(): void {
+    for (let i = 0; i < 24; i++) {
+      const hour = i.toString().padStart(2, '0') + ':00';
+      this.timeSlots.push({ hour, events: [] });
+    }
+    this.timeSlots[3].events = [
+      {
+        title:'hello',
+      }
+    ]
+    console.log(this.timeSlots)
   }
 
   onDateChange(event: any): void {

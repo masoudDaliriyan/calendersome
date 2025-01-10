@@ -6,7 +6,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list'; // Add MatGridListModule
 import { MatInputModule } from '@angular/material/input';
-import { DragDropModule } from '@angular/cdk/drag-drop'; // Add MatInputModule
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatList, MatListModule } from '@angular/material/list';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms'; // Add MatInputModule
 
 @NgModule({
   declarations: [],
@@ -18,9 +21,13 @@ import { DragDropModule } from '@angular/cdk/drag-drop'; // Add MatInputModule
     MatNativeDateModule,
     MatGridListModule,  // Include MatGridListModule
     MatInputModule,
-    DragDropModule// Include MatInputModule
+    MatListModule,
+    MatSelectModule,
+    DragDropModule,
+    FormsModule
   ],
   exports: [
+    MatSelectModule,
     CommonModule, // Export CommonModule
     MatCardModule,
     MatToolbarModule,
@@ -28,6 +35,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop'; // Add MatInputModule
     MatNativeDateModule,
     MatGridListModule,  // Export MatGridListModule
     MatInputModule,
+    MatListModule,
+    FormsModule,
     DragDropModule// Export MatInputModule
   ]
 })

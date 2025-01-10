@@ -1,19 +1,55 @@
 <mat-toolbar color="primary">
   <span>CalendarSome</span>
+  <div>
+    <mat-form-field>
+      <mat-label>Choose an option</mat-label>
+      <mat-select [(ngModel)]="view">
+        <mat-option value="day">day</mat-option>
+        <mat-option value="month" >Month</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+
 </mat-toolbar>
+
 <div style="text-align: center; margin: 20px;display: flex">
-      <mat-calendar style="width: 300px;height: 300px;flex: 2"></mat-calendar>
-  <div style="flex:8;display: flex;flex-wrap: wrap;">
-    <div *ngFor="let day of monthDays;let i=index" [ngClass]="{'today': isToday(day)}"  style="width: calc(100% / 7); aspect-ratio: 1; ;box-sizing: border-box; border: 1px solid #ccc;" cdkDropList (cdkDropListDropped)="onDrop($event, day)" [cdkDropListData]="day.events" >
-      <div *ngIf="day" class="day-card" >
-        <div>
-          <strong>{{ day.date.getDate() }}</strong>
-          <div class="event" *ngFor="let event of day.events" cdkDrag >
-            {{ event.title }}
+  <mat-calendar style="width: 300px;height: 300px;flex: 2"></mat-calendar>
+  <ng-container *ngIf="view==='day'">
+    <div class="day-view-container" style="flex:8" cdkDropListGroup>
+      <mat-list>
+        <ng-container *ngFor="let slot of timeSlots" >
+          <mat-list-item cdkDropList (cdkDropListDropped)="onDaySlotDrop($event,slot)" [cdkDropListData]="slot.events" >
+            <div class="time-slot">
+              <span class="hour">{{ slot.hour }}</span>
+              <div class="events">
+                <div *ngFor="let event of slot.events" class="event" cdkDrag>
+                  <!--                  <mat-card-content>-->
+                  <span>{{ event.title }}</span>
+                  <p>{{ event.description }}</p>
+                  <!--                  </mat-card-content>-->
+                </div>
+              </div>
+            </div>
+          </mat-list-item>
+          <mat-divider></mat-divider>
+        </ng-container>
+      </mat-list>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="view==='month'">
+    <div style="flex:8;display: flex;flex-wrap: wrap;" cdkDropListGroup>
+      <div *ngFor="let day of monthDays;let i=index" [ngClass]="{'today': isToday(day)}" [cdkDropListConnectedTo]="connectedLists"  style="width: 150px; height: 150px; ;box-sizing: border-box; border: 1px solid #ccc;" cdkDropList (cdkDropListDropped)="onDrop($event, day)"  (cdkDropListEntered)="onCdkDropListEntered($event)" [cdkDropListData]="day.events">
+        <div *ngIf="day" class="day-card" >
+          <div>
+            <strong>{{ day.date.getDate() }}</strong>
+            <div class="event" *ngFor="let event of day.events" cdkDrag >
+              {{ event.title }}
+            </div>
           </div>
         </div>
       </div>
-      <div *ngIf="!day"></div> <!-- Empty space for previous month's trailing days -->
-  </div>
+    </div>
 
+  </ng-container>
 </div>
