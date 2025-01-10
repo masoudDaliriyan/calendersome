@@ -5,7 +5,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatGridListModule } from '@angular/material/grid-list'; // Add MatGridListModule
-import { MatInputModule } from '@angular/material/input'; // Add MatInputModule
+import { MatInputModule } from '@angular/material/input';
+import { DragDropModule } from '@angular/cdk/drag-drop'; // Add MatInputModule
 
 @NgModule({
   declarations: [],
@@ -16,7 +17,8 @@ import { MatInputModule } from '@angular/material/input'; // Add MatInputModule
     MatDatepickerModule,
     MatNativeDateModule,
     MatGridListModule,  // Include MatGridListModule
-    MatInputModule      // Include MatInputModule
+    MatInputModule,
+    DragDropModule// Include MatInputModule
   ],
   exports: [
     CommonModule, // Export CommonModule
@@ -25,7 +27,8 @@ import { MatInputModule } from '@angular/material/input'; // Add MatInputModule
     MatDatepickerModule,
     MatNativeDateModule,
     MatGridListModule,  // Export MatGridListModule
-    MatInputModule      // Export MatInputModule
+    MatInputModule,
+    DragDropModule// Export MatInputModule
   ]
 })
 export class SharedModule { }

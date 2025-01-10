@@ -4,12 +4,12 @@
 <div style="text-align: center; margin: 20px;display: flex">
       <mat-calendar style="width: 300px;height: 300px;flex: 2"></mat-calendar>
   <div style="flex:8;display: flex;flex-wrap: wrap;">
-    <div *ngFor="let day of monthDays;let i=index" [ngClass]="{'today': isToday(day)}"  style="width: calc(100% / 7); aspect-ratio: 1; ;box-sizing: border-box; border: 1px solid #ccc;">
+    <div *ngFor="let day of monthDays;let i=index" [ngClass]="{'today': isToday(day)}"  style="width: calc(100% / 7); aspect-ratio: 1; ;box-sizing: border-box; border: 1px solid #ccc;" cdkDropList (cdkDropListDropped)="onDrop($event, day)" [cdkDropListData]="day.events" >
       <div *ngIf="day" class="day-card" >
         <div>
-          <strong>{{ day.getDate() }}</strong>
-          <div class="event" *ngIf="i===3">
-
+          <strong>{{ day.date.getDate() }}</strong>
+          <div class="event" *ngFor="let event of day.events" cdkDrag >
+            {{ event.title }}
           </div>
         </div>
       </div>
