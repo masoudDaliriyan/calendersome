@@ -1,17 +1,17 @@
 <mat-toolbar color="primary">
-  <span>CalendarSome</span>
-  <div>
-    <mat-form-field>
-      <mat-label>Choose an option</mat-label>
-      <mat-select [(ngModel)]="view">
-        <mat-option value="day">day</mat-option>
-        <mat-option value="month" >Month</mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-
+    <span>CalendarSome</span>
 
 </mat-toolbar>
+<div style="width: 300px">
+  <mat-form-field>
+    <mat-label>Choose an option</mat-label>
+    <mat-select [(ngModel)]="view">
+      <mat-option value="day">day</mat-option>
+      <mat-option value="month" >Month</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
 
 <div style="text-align: center; margin: 20px;display: flex">
   <mat-calendar style="width: 300px;height: 300px;flex: 2"></mat-calendar>

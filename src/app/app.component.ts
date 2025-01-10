@@ -16,6 +16,18 @@ export class AppComponent implements OnInit{
   timeSlots:any = [];
   viewOptions=['day','month']
   view = 'month'
+  events=[
+    {
+      title: 'Event 1',
+      start: new Date(new Date().setHours(9, 0, 0, 0)), // Today at 9:00 AM
+      end: new Date(new Date().setHours(10, 0, 0, 0)) // Today at 10:00 AM
+    },
+    {
+      title: 'Event 2',
+      start: new Date(new Date().setHours(11, 0, 0, 0)), // Today at 11:00 AM
+      end: new Date(new Date().setHours(12, 0, 0, 0)) // Today at 12:00 PM
+    }
+  ]
 
 
   ngOnInit(): void {
