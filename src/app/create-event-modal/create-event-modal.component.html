@@ -1,0 +1,52 @@
+<h2 mat-dialog-title>Create Event</h2>
+<mat-dialog-content [formGroup]="eventForm">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Event Title</mat-label>
+    <input matInput formControlName="title" placeholder="Enter event title">
+    <mat-error *ngIf="eventForm.get('title')?.hasError('required')">
+      Event title is required.
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Meeting Date</mat-label>
+    <input matInput formControlName="date" [matDatepicker]="datepicker" placeholder="Select a date">
+    <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+    <mat-datepicker #datepicker></mat-datepicker>
+    <mat-error *ngIf="eventForm.get('date')?.hasError('required')">
+      Meeting date is required.
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Start Time</mat-label>
+    <input matInput [matTimepicker]="startTimePicker" formControlName="startTime" placeholder="Select start time">
+    <mat-timepicker-toggle matIconSuffix [for]="startTimePicker"></mat-timepicker-toggle>
+    <mat-timepicker #startTimePicker></mat-timepicker>
+    <mat-error *ngIf="eventForm.get('startTime')?.hasError('required')">
+      Start time is required.
+    </mat-error>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>End Time</mat-label>
+    <input matInput [matTimepicker]="endTimePicker" formControlName="endTime" placeholder="Select end time">
+    <mat-timepicker-toggle matIconSuffix [for]="endTimePicker"></mat-timepicker-toggle>
+    <mat-timepicker #endTimePicker></mat-timepicker>
+    <mat-error *ngIf="eventForm.get('endTime')?.hasError('required')">
+      End time is required.
+    </mat-error>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="eventForm.invalid"
+    (click)="onAddEvent()">
+    <mat-icon>add</mat-icon>
+    Add
+  </button>
+</mat-dialog-actions>

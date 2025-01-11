@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SharedModule } from './shared/shared.module';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { EventService } from './event.service';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateEventModalComponent } from './create-event-modal/create-event-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -15,23 +18,30 @@ export class AppComponent implements OnInit{
   monthDays: (any)[] = []; // Allow null values in the array
   timeSlots:any = [];
   viewOptions=['day','month']
-  view = 'month'
-  events=[
-    {
-      title: 'Event 1',
-      start: new Date(new Date().setHours(9, 0, 0, 0)), // Today at 9:00 AM
-      end: new Date(new Date().setHours(10, 0, 0, 0)) // Today at 10:00 AM
-    },
-    {
-      title: 'Event 2',
-      start: new Date(new Date().setHours(11, 0, 0, 0)), // Today at 11:00 AM
-      end: new Date(new Date().setHours(12, 0, 0, 0)) // Today at 12:00 PM
-    }
-  ]
+  view = 'day'
+  constructor(public eventService:EventService,public dialog:MatDialog)
+  {
+  }
 
+  onAddEventClicked(){
+    const newEvent = {
+      title: 'Night Work',
+      start: new Date('2025-01-11T21:00:00'),
+      end: new Date('2025-01-11T23:00:00'),
+    };
 
+    this.eventService.addEvent(newEvent);
+    // const dialogRef =this.dialog.open(CreateEventModalComponent,{
+    //   width:'600px',
+    // })
+    // dialogRef.afterClosed().subscribe(result => {
+    //   console.log('The dialog was closed');
+    //   if (result !== undefined) {
+    //   }
+    // });
+  }
   ngOnInit(): void {
-    this.initializeTimeSlots();
+    this.initializeTimeSlots(this.selectedDate);
     this.generateMonthDays(this.selectedDate);
   }
   connectedLists = this.monthDays.map((_, i) => `cdk-drop-list-${i}`);
@@ -61,6 +71,11 @@ export class AppComponent implements OnInit{
     console.log(this.monthDays);
   }
 
+  getEventHeight(event: any): number {
+    const durationInMinutes = (event.end.getTime() - event.start.getTime()) / (1000 * 60);
+    const minutesPerPixel = .83; // 2 pixels per minute of duration (adjust as needed)
+    return durationInMinutes * minutesPerPixel;
+  }
 
 
   onDaySlotDrop(event:any,timeSlot:any){
@@ -72,12 +87,12 @@ export class AppComponent implements OnInit{
     else
     {
       // If the item is dropped into a different container, transfer the event
-      transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+      this.eventService.changeEventHour(event.item.data.id,event.container.data)
     }
   }
 
   onDrop(event: CdkDragDrop<any[]>, targetDay: any) {
-    console.log(event)
+    console.log(event.container.data)
     if (event.previousContainer === event.container)
     {
       // If the item is dropped within the same container, reorder the events
@@ -86,27 +101,41 @@ export class AppComponent implements OnInit{
     else
     {
       // If the item is dropped into a different container, transfer the event
+      this.eventService.moveEventToAnotherDay(event.item.data.id,event.container.data)
       transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
     }
   }
 
-  private initializeTimeSlots(): void {
+  private initializeTimeSlots(date: Date): void {
+    this.timeSlots = []; // Clear existing time slots
+
     for (let i = 0; i < 24; i++) {
       const hour = i.toString().padStart(2, '0') + ':00';
-      this.timeSlots.push({ hour, events: [] });
+      this.timeSlots.push({ hour});
     }
-    this.timeSlots[3].events = [
-      {
-        title:'hello',
-      }
-    ]
-    console.log(this.timeSlots)
+
+    console.log(this.timeSlots); // Log the time slots for debugging
   }
+
 
   onDateChange(event: any): void {
     this.selectedDate = new Date(event.value);
     this.generateMonthDays(this.selectedDate);
   }
+  getEventTop(event: any): number {
+    const startOfDay = new Date(event.start);
+    startOfDay.setHours(0, 0, 0, 0);  // Set to midnight to get the start of the day
+    const totalDayDuration = 24 * 60 * 60 * 1000; // Total duration in milliseconds (24 hours)
+
+    // Calculate the time elapsed from the start of the day
+    const elapsedTime = event.start.getTime() - startOfDay.getTime();
+
+    // Convert elapsed time to a percentage of the total day duration
+    const topPercentage = (elapsedTime / totalDayDuration) * 99.4;
+
+    return topPercentage;
+  }
+
 
   isToday(day: any): boolean {
     if (!day) return false;
