@@ -4,55 +4,34 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class EventService {
+  private events: any[] = [];
 
-  // Sample events array to store events
-  private events: any[] = [
-    { id: 1, title: 'Meeting', start: new Date('2025-01-11T09:00:00'), end: new Date('2025-01-11T12:30:00') },
-    { id: 2, title: 'Lunch', start: new Date('2025-01-11T12:40:00'), end: new Date('2025-01-11T13:00:00') },
-  ];
+  constructor() {
+    this.loadEventsFromLocalStorage();
+  }
 
-  constructor() { }
+  // Load events from localStorage on initialization
+  public loadEventsFromLocalStorage(): void {
+    const storedEvents = localStorage.getItem('events');
+    console.log('stored',storedEvents)
+    if (storedEvents) {
+      this.events = JSON.parse(storedEvents);
+      console.log(this.events)
+      console.log('Events loaded from localStorage:', this.events);  // Debugging
+    }
+  }
+
+  // Save events to localStorage after any update
+  private saveEventsToLocalStorage(): void {
+    console.log('Saving events to localStorage:', this.events);  // Debugging
+    localStorage.setItem('events', JSON.stringify(this.events));
+  }
 
   // Helper function to get start of day
   private getStartOfDay(date: Date): Date {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
     return startOfDay;
-  }
-  moveEventToAnotherDay(eventId: number, newDate: any): boolean {
-    const event = this.getEventById(eventId);
-    if (!event) return false;
-
-    const eventDuration = event.end.getTime() - event.start.getTime();
-    const newStart = new Date(newDate);
-    newStart.setHours(event.start.getHours(), event.start.getMinutes(), event.start.getSeconds());
-
-    // Update the event using the service method to update the event
-    return this.updateEvent(eventId, { start: newStart, end: new Date(newStart.getTime() + eventDuration) });
-  }
-
-
-
-  updateEvent(eventId: number, updatedEvent: any): boolean {
-    const event = this.events.find(event => event.id === eventId);
-    if (!event) {
-      console.error(`Event with ID ${eventId} not found.`);
-      return false;
-    }
-    Object.assign(event, updatedEvent);
-    console.log(`Event with ID ${eventId} updated successfully.`);
-    return true;
-  }
-
-  deleteEvent(eventId: number): boolean {
-    const initialLength = this.events.length;
-    this.events = this.events.filter(event => event.id !== eventId);
-    if (this.events.length === initialLength) {
-      console.error(`Event with ID ${eventId} not found.`);
-      return false;
-    }
-    console.log(`Event with ID ${eventId} deleted successfully.`);
-    return true;
   }
 
   // Helper function to get end of day
@@ -62,31 +41,9 @@ export class EventService {
     return endOfDay;
   }
 
-  // Method to get events for a specific day
-  getEventsForDay(date: Date): any[] {
-    const startOfDay = this.getStartOfDay(date);
-    const endOfDay = this.getEndOfDay(date);
-    return this.filterEventsByDate(startOfDay, endOfDay);
-  }
-  changeEventHour(eventId: number, newHour: number): boolean {
-    const event = this.getEventById(eventId);
-    if (!event) return false;
-
-    const duration = event.end.getTime() - event.start.getTime();
-    const newStart = new Date(event.start);
-    newStart.setHours(newHour, 0, 0, 0);
-
-    return this.updateEvent(eventId, { start: newStart, end: new Date(newStart.getTime() + duration) });
-  }
-
-  getEventsForHour(date: Date, hour: number): any[] {
-    const startOfHour = new Date(date);
-    startOfHour.setHours(hour, 0, 0, 0);
-
-    const endOfHour = new Date(startOfHour);
-    endOfHour.setHours(hour, 59, 59, 999);
-
-    return this.filterEventsByDate(startOfHour, endOfHour);
+  // Helper function to get event by its ID
+  private getEventById(eventId: number): any | undefined {
+    return this.events.find(event => event.id === eventId);
   }
 
   // Helper function to filter events by start and end date
@@ -104,40 +61,78 @@ export class EventService {
   // Method to add a new event
   addEvent(newEvent: any): void {
     const eventId = this.generateNewEventId();
-    const eventWithId = this.assignEventId(newEvent, eventId);
+    const eventWithId = { ...newEvent, id: eventId };
+    console.log('Adding event:', eventWithId);  // Debugging
     this.events.push(eventWithId);
-    console.log('Event added:', eventWithId);
+    this.saveEventsToLocalStorage();
   }
 
-  // Helper function to assign an event ID
-  private assignEventId(newEvent: any, eventId: number): any {
-    return { ...newEvent, id: eventId };
+  // Method to update an event
+  updateEvent(eventId: number, updatedEvent: any): boolean {
+    const event = this.getEventById(eventId);
+    if (!event) return false;
+
+    Object.assign(event, updatedEvent);
+    this.saveEventsToLocalStorage();
+    return true;
   }
 
-  // Method to update an event by its ID
+  // Method to change an event's start time (hour change)
+  changeEventHour(eventId: number, newHour: number): boolean {
+    const event = this.getEventById(eventId);
+    if (!event) return false;
 
+    const duration = event.end.getTime() - event.start.getTime();
+    const newStart = new Date(event.start);
+    newStart.setHours(newHour, 0, 0, 0);
 
-  // Helper function to find an event index by its ID
-  private findEventIndexById(eventId: number): number {
-    return this.events.findIndex(event => event.id === eventId);
+    return this.updateEvent(eventId, { start: newStart, end: new Date(newStart.getTime() + duration) });
   }
 
-  // Helper function to update event properties
-  private updateEventProperties(eventId: number, updatedEvent: any): any {
-    const existingEvent = this.events.find(event => event.id === eventId);
-    return { ...existingEvent, ...updatedEvent };
+  // Method to move an event to another day
+  moveEventToAnotherDay(eventId: number, newDate: any): boolean {
+    const event = this.getEventById(eventId);
+    if (!event) return false;
+
+    // Ensure newDate is a valid Date
+    const validNewDate = new Date(newDate);
+    if (isNaN(validNewDate.getTime())) {
+      console.error("Invalid date:", newDate);
+      return false;
+    }
+
+    const eventDuration = event.end.getTime() - event.start.getTime();
+    const newStart = new Date(validNewDate);
+    newStart.setHours(event.start.getHours(), event.start.getMinutes(), event.start.getSeconds());
+
+    return this.updateEvent(eventId, { start: newStart, end: new Date(newStart.getTime() + eventDuration) });
+  }
+
+  // Method to get events for a specific day
+  getEventsForDay(date: Date): any[] {
+    const startOfDay = this.getStartOfDay(date);
+    const endOfDay = this.getEndOfDay(date);
+    return this.filterEventsByDate(startOfDay, endOfDay);
+  }
+
+  // Method to get events for a specific hour of a day
+  getEventsForHour(date: Date, hour: number): any[] {
+    const startOfHour = new Date(date);
+    startOfHour.setHours(hour, 0, 0, 0);
+
+    const endOfHour = new Date(startOfHour);
+    endOfHour.setHours(hour, 59, 59, 999);
+
+    return this.filterEventsByDate(startOfHour, endOfHour);
   }
 
   // Method to delete an event by its ID
+  deleteEvent(eventId: number): boolean {
+    const eventIndex = this.events.findIndex(event => event.id === eventId);
+    if (eventIndex === -1) return false;
 
-
-  // Helper function to remove an event by index
-  private removeEventByIndex(eventIndex: number): void {
     this.events.splice(eventIndex, 1);
-  }
-  // Method to get a single event by its ID
-  // Helper function to find an event by its ID
-  private getEventById(eventId: number): any | undefined {
-    return this.events.find(event => event.id === eventId);
+    this.saveEventsToLocalStorage();
+    return true;
   }
 }

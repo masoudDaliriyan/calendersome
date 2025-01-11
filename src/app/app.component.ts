@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SharedModule } from './shared/shared.module';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { EventService } from './event.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CreateEventModalComponent } from './create-event-modal/create-event-modal.component';
+import { MatCalendar } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-root',
@@ -12,40 +13,113 @@ import { CreateEventModalComponent } from './create-event-modal/create-event-mod
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit,AfterViewInit{
   title = 'masoud-daliriyan-angular-test';
   selectedDate: Date = new Date(); // Default to today's date
   monthDays: (any)[] = []; // Allow null values in the array
   timeSlots:any = [];
   viewOptions=['day','month']
-  view = 'day'
-  constructor(public eventService:EventService,public dialog:MatDialog)
+  view = 'month'
+  @ViewChild('calendar') public calendar!: MatCalendar<Date>;
+  public currentActiveMonth:any= null
+
+
+  constructor(public eventService:EventService,public dialog:MatDialog,private renderer: Renderer2)
   {
   }
 
-  onAddEventClicked(){
-    const newEvent = {
-      title: 'Night Work',
-      start: new Date('2025-01-11T21:00:00'),
-      end: new Date('2025-01-11T23:00:00'),
-    };
+  ngAfterViewInit() {
+    // Select the previous and next buttons
+    console.log('calendar',this.calendar);
 
-    this.eventService.addEvent(newEvent);
-    // const dialogRef =this.dialog.open(CreateEventModalComponent,{
-    //   width:'600px',
-    // })
-    // dialogRef.afterClosed().subscribe(result => {
-    //   console.log('The dialog was closed');
-    //   if (result !== undefined) {
-    //   }
-    // });
+    this.currentActiveMonth = this.calendar.activeDate;
+    this.generateMonthDays(this.currentActiveMonth);
+
+    const prevButton = document.querySelector('.mat-calendar-previous-button');
+    const nextButton = document.querySelector('.mat-calendar-next-button');
+
+    // Attach click event listeners
+    if (prevButton) {
+      this.renderer.listen(prevButton, 'click', () => {
+        // this.onPrevButtonClick();
+        this.currentActiveMonth = this.calendar.activeDate;
+        this.generateMonthDays(this.currentActiveMonth);
+      });
+    }
+
+    if (nextButton) {
+      this.renderer.listen(nextButton, 'click', () => {
+        const activeDate = this.calendar.activeDate;
+        this.currentActiveMonth = this.calendar.activeDate;
+        this.generateMonthDays(this.currentActiveMonth);
+      });
+    }
+  }
+  onAddEventClicked(){
+
+    const dialogRef =this.dialog.open(CreateEventModalComponent,{
+      width:'600px',
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      if (result !== undefined) {
+      }
+    });
   }
   ngOnInit(): void {
     this.initializeTimeSlots(this.selectedDate);
-    this.generateMonthDays(this.selectedDate);
+    setTimeout(()=>{
+      this.eventService.loadEventsFromLocalStorage()
+      this.generateMonthDays(this.selectedDate)
+    },1000)
   }
   connectedLists = this.monthDays.map((_, i) => `cdk-drop-list-${i}`);
 
+  getTitle(): string {
+    const date = new Date(this.view === 'day' ? this.selectedDate : this.currentActiveMonth);
+
+    if (this.view === 'day') {
+      const dayNumber = date.getDate(); // Get the numeric day of the month
+      const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long' };
+      const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date); // Format without the day
+      return `${dayNumber} ${formattedDate}`; // Combine day number and formatted date
+    }
+
+    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long' };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  }
+
+
+
+  onEventClicked(event:any,e:any){
+    e.stopPropagation()
+    console.log(event)
+    const dialogRef = this.dialog.open(CreateEventModalComponent, {
+      data: {
+        ... event, // Example: pass today's date
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Event created:', result);
+      }
+    });
+  }
+
+  onDayContainerClick(day:any){
+    const dialogRef = this.dialog.open(CreateEventModalComponent, {
+      data: {
+        date: day.date, // Example: pass today's date
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Event created:', result);
+      }
+    });
+  }
 
   onCdkDropListEntered(event:any){
     console.log('enter',event)
@@ -92,7 +166,7 @@ export class AppComponent implements OnInit{
   }
 
   onDrop(event: CdkDragDrop<any[]>, targetDay: any) {
-    console.log(event.container.data)
+    console.log('eveeeeeeeee',event.container.data)
     if (event.previousContainer === event.container)
     {
       // If the item is dropped within the same container, reorder the events
@@ -101,8 +175,9 @@ export class AppComponent implements OnInit{
     else
     {
       // If the item is dropped into a different container, transfer the event
+      console.log('event',event.container.data)
       this.eventService.moveEventToAnotherDay(event.item.data.id,event.container.data)
-      transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+      // transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
     }
   }
 
@@ -118,10 +193,7 @@ export class AppComponent implements OnInit{
   }
 
 
-  onDateChange(event: any): void {
-    this.selectedDate = new Date(event.value);
-    this.generateMonthDays(this.selectedDate);
-  }
+
   getEventTop(event: any): number {
     const startOfDay = new Date(event.start);
     startOfDay.setHours(0, 0, 0, 0);  // Set to midnight to get the start of the day
@@ -131,7 +203,7 @@ export class AppComponent implements OnInit{
     const elapsedTime = event.start.getTime() - startOfDay.getTime();
 
     // Convert elapsed time to a percentage of the total day duration
-    const topPercentage = (elapsedTime / totalDayDuration) * 99.4;
+    const topPercentage = (elapsedTime / totalDayDuration) * 99.7;
 
     return topPercentage;
   }

@@ -1,0 +1,17 @@
+.event-form {
+  display: flex;
+  flex-wrap: wrap; /* Allows items to wrap to the next row */
+  gap: 16px; /* Adds spacing between items */
+}
+
+.event-form__item {
+  //flex: 1 1 calc(49% - 16px); /* Two columns per row with space between */
+  //box-sizing: border-box; /* Includes padding and border in width/height */
+  //padding: 16px;
+  //text-align: center;
+  width: calc(50% - 16px);
+}
+
+mat-dialog-content{
+  padding: 20px!important;
+}

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { EventService } from '../event.service';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
@@ -32,11 +32,13 @@ export class CreateEventModalComponent {
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<CreateEventModalComponent>,
-    private eventService: EventService
-  ) {
+    private eventService: EventService,
+  @Inject(MAT_DIALOG_DATA) public data: any // Inject the passed data
+) {
+    console.log(this.data)
     this.eventForm = this.fb.group({
-      title: ['', [Validators.required]],
-      date: ['', [Validators.required]],
+      title: [data?.title || '', [Validators.required]],
+      date: [data?.date || '', [Validators.required]],
       startTime: ['', [Validators.required]],
       endTime: ['', [Validators.required]],
     });
@@ -46,25 +48,36 @@ export class CreateEventModalComponent {
     if (this.eventForm.valid) {
       const formValue = this.eventForm.value;
 
-      // Combine date and time fields into proper Date objects
-      const start = new Date(formValue.date);
-      const end = new Date(formValue.date);
-      const [startHours, startMinutes] = formValue.startTime.split(':').map(Number);
-      const [endHours, endMinutes] = formValue.endTime.split(':').map(Number);
+      // Extract the selected date
+      const selectedDate = new Date(formValue.date);
 
-      start.setHours(startHours, startMinutes, 0, 0);
-      end.setHours(endHours, endMinutes, 0, 0);
+      // Check and extract start and end times
+      const startTime = formValue.startTime instanceof Date ? formValue.startTime : new Date(`1970-01-01T${formValue.startTime}:00`);
+      const endTime = formValue.endTime instanceof Date ? formValue.endTime : new Date(`1970-01-01T${formValue.endTime}:00`);
 
+      // Set the hours and minutes for the start and end times based on selected date
+      const start = new Date(selectedDate);
+      start.setHours(startTime.getHours(), startTime.getMinutes(), 0, 0);
+
+      const end = new Date(selectedDate);
+      end.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0);
+
+      // Construct the new event
       const newEvent = {
         title: formValue.title,
         start,
         end,
       };
 
+      // Call the event service to add the event
       this.eventService.addEvent(newEvent);
+
+      // Close the dialog
       this.dialogRef.close();
     }
   }
+
+
 
   onCancel() {
     this.dialogRef.close();
