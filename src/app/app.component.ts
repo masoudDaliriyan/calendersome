@@ -54,7 +54,6 @@ export class AppComponent implements OnInit,AfterViewInit{
 
     if (nextButton) {
       this.renderer.listen(nextButton, 'click', () => {
-        const activeDate = this.calendar.activeDate;
         this.currentActiveMonth = this.calendar.activeDate;
         this.generateMonthDays(this.currentActiveMonth);
       });
@@ -98,7 +97,15 @@ export class AppComponent implements OnInit,AfterViewInit{
   }
 
   onPrevButtonClicked(){
-
+    if (this.view === 'day') {
+      // Increment the selected date by 1 day
+      this.selectedDate = new Date(this.selectedDate);
+      this.selectedDate.setDate(this.selectedDate.getDate() - 1);
+    } else if (this.view === 'month') {
+      // Increment the selected date by 1 month
+      this.currentActiveMonth.setMonth(this.currentActiveMonth.getMonth() - 1);
+      this.generateMonthDays(this.currentActiveMonth)
+    }
   }
   getTitle(): string {
     const date = new Date(this.view === 'day' ? this.selectedDate : this.currentActiveMonth);
@@ -183,36 +190,60 @@ export class AppComponent implements OnInit,AfterViewInit{
   }
 
 
-  onDaySlotDrop(event: any) {
-    this.isDragging = true; // Set the flag
-    // Handle drop logic
-    setTimeout(() => this.isDragging = false, 0);
-    console.log(event)
-    // Get the parent element from the ViewChild reference
-    const parentElement = this.dayViewContainer.nativeElement;
-    const draggableElement = event.source.element.nativeElement;
+  onDaySlotDrop(event: any): void {
+    this.isDragging = true; // Set the flag to indicate dragging
+    setTimeout(() => (this.isDragging = false), 0); // Reset the flag after the operation
 
-    // Get bounding rectangles
-    const parentRect = parentElement.getBoundingClientRect();
-    const draggableRect = draggableElement.getBoundingClientRect();
+    // Get the parent and draggable element bounding rects
+    const parentRect = this.dayViewContainer.nativeElement.getBoundingClientRect();
+    const draggableRect = event.source.element.nativeElement.getBoundingClientRect();
 
-    // Calculate the offset from the parent's top edge
+    // Calculate offset from the top of the parent container
     const offsetFromTop = draggableRect.top - parentRect.top;
-    console.log(draggableRect,parentRect)
 
-    console.log('Offset from top:', offsetFromTop, 'px');
+    // Calculate the percentage of the day based on the offset
+    const topPercentage = (offsetFromTop / parentRect.height) * 100;
 
-    // Uncomment to stop event propagation
+    // Use the event's existing start date for `startOfDay`
+    const startOfDay = new Date(event.source.data.start);
+    startOfDay.setHours(0, 0, 0, 0); // Reset to midnight of the same date
 
-    // Uncomment if you want to transfer event data when dropped in a different container
-    // if (event.previousContainer !== event.container) {
-    //   this.eventService.changeEventHour(event.item.data.id, event.container.data);
-    // }
+    // Total day duration in milliseconds (24 hours)
+    const totalDayDuration = 24 * 60 * 60 * 1000;
+    const elapsedTime = (topPercentage / 100) * totalDayDuration;
+
+    // Calculate the new event start time based on the offset
+    const newEventStartTime = new Date(startOfDay.getTime() + elapsedTime);
+
+    // Get the event duration (difference between the current start and end times)
+    const eventDuration = event.source.data.end.getTime() - event.source.data.start.getTime();
+
+    // Calculate the new event end time
+    const newEventEndTime = new Date(newEventStartTime.getTime() + eventDuration);
+
+    // Update the event using the EventService
+    const eventId = event.source.data.id; // Assuming the event item contains an ID
+    const updatedEvent = {
+      start: newEventStartTime,
+      end: newEventEndTime,
+    };
+
+    // Call the event service to update the event's start and end times
+    const success = this.eventService.updateEvent(eventId, updatedEvent);
+
+    if (success) {
+      console.log("Updated event start time:", newEventStartTime);
+      console.log("Updated event end time:", newEventEndTime);
+    } else {
+      console.log("Failed to update event.");
+    }
   }
 
 
+
+
+
   onDrop(event: CdkDragDrop<any[]>, targetDay: any) {
-    console.log('eveeeeeeeee',event.container.data)
     if (event.previousContainer === event.container)
     {
       // If the item is dropped within the same container, reorder the events
