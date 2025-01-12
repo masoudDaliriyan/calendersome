@@ -162,6 +162,7 @@ export class AppComponent implements OnInit,AfterViewInit{
   onCdkDropListEntered(event:any){
     console.log('enter',event)
   }
+
   generateMonthDays(date: Date): void {
     const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
     const startDayOfWeek = firstDayOfMonth.getDay(); // Day of the week (0-6, where 0 is Sunday)

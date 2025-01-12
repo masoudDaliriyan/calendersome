@@ -4,15 +4,16 @@ import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatGridListModule } from '@angular/material/grid-list'; // Add MatGridListModule
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatInputModule } from '@angular/material/input';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 
 @NgModule({
   imports: [
@@ -29,7 +30,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     FormsModule,
     MatButtonModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    ReactiveFormsModule,
+    MatTimepickerModule
   ],
   exports: [
     MatSelectModule,
@@ -45,7 +48,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
-    DragDropModule
+    DragDropModule,
+    ReactiveFormsModule,
+    MatTimepickerModule
   ],
 })
 export class SharedModule { }

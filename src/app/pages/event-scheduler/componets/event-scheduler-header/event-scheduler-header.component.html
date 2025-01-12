@@ -1,0 +1,12 @@
+<h3 style="text-align: left;margin-top: 15px;margin-bottom: 35px;display: flex;gap: 5px">
+  <button mat-stroked-button (click)="onTodayButtonClicked()">Today</button>
+  <span style="display: flex;align-items: center;justify-content: center;gap: 5px">
+      <button mat-icon-button aria-label="Previous" (click)="onPrevButtonClicked()">
+        <mat-icon>navigate_before</mat-icon>
+      </button>
+        <button mat-icon-button  (click)="onNextButtonClicked()">
+        <mat-icon>navigate_next</mat-icon>
+      </button>
+    {{calendar.getTitle()}}
+      </span>
+</h3>

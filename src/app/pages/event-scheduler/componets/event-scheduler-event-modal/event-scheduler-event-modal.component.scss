@@ -1,0 +1,13 @@
+.event-form {
+  display: flex;
+  flex-wrap: wrap; /* Allows items to wrap to the next row */
+  gap: 16px; /* Adds spacing between items */
+}
+
+.event-form__item {
+  width: calc(50% - 16px);
+}
+
+mat-dialog-content{
+  padding: 20px!important;
+}

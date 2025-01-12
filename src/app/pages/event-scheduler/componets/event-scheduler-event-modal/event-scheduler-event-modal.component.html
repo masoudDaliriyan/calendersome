@@ -1,1 +1,77 @@
-<p>event-scheduler-event-modal works!</p>
+<h2 mat-dialog-title *ngIf="!isInEditMode">Create Event</h2>
+<h2 mat-dialog-title *ngIf="isInEditMode">Edit Event </h2>
+<mat-dialog-content [formGroup]="eventForm">
+  <div class="event-form">
+    <div class="event-form__item">
+      <mat-form-field appearance="outline" class="full-width" style="width:100% ">
+        <mat-label>Event Title</mat-label>
+        <input matInput formControlName="title" placeholder="Enter event title">
+        <mat-error *ngIf="eventForm.get('title')?.hasError('required')">
+          Event title is required.
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="event-form__item">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Meeting Date</mat-label>
+        <input matInput formControlName="date" [matDatepicker]="datepicker" placeholder="Select a date">
+        <mat-datepicker-toggle matSuffix [for]="datepicker"></mat-datepicker-toggle>
+        <mat-datepicker #datepicker></mat-datepicker>
+        <mat-error *ngIf="eventForm.get('date')?.hasError('required')">
+          Meeting date is required.
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="event-form__item">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Start Time</mat-label>
+        <input matInput [matTimepicker]="startTimePicker" formControlName="startTime" placeholder="Select start time">
+        <mat-timepicker-toggle matIconSuffix [for]="startTimePicker"></mat-timepicker-toggle>
+        <mat-timepicker #startTimePicker></mat-timepicker>
+        <mat-error *ngIf="eventForm.get('startTime')?.hasError('required')">
+          Start time is required.
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="event-form__item">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>End Time</mat-label>
+        <input matInput [matTimepicker]="endTimePicker" formControlName="endTime" placeholder="Select end time">
+        <mat-timepicker-toggle matIconSuffix [for]="endTimePicker"></mat-timepicker-toggle>
+        <mat-timepicker #endTimePicker></mat-timepicker>
+        <mat-error *ngIf="eventForm.get('endTime')?.hasError('required')">
+          End time is required.
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <div style="display: flex;justify-content: space-between;width: 100%">
+    <div>
+      <button mat-mini-fab  color="warn" (click)="onDelete()" *ngIf="isInEditMode">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <div style="display: flex;align-items: center;justify-content:center ">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button
+        *ngIf="!isInEditMode"
+        mat-flat-button
+        color="primary"
+        (click)="onAddEvent()">
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+      <button
+        *ngIf="isInEditMode"
+        mat-flat-button
+        color="primary"
+        (click)="onUpdate()">
+        <mat-icon>edit</mat-icon>
+        Update
+      </button>
+    </div>
+  </div>
+</mat-dialog-actions>

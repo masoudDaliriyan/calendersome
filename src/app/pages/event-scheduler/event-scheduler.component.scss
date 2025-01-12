@@ -1,0 +1,11 @@
+.calendar {
+  display: flex;
+  gap: 10px;
+  &__sidebar {
+      flex: 2;
+  }
+
+  &__content {
+    flex: 8;
+  }
+}

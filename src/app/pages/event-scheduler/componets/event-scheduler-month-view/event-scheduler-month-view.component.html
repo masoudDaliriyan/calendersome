@@ -1,0 +1,27 @@
+  <div style="flex:8;display: flex;flex-wrap: wrap;" cdkDropListGroup>
+    <div *ngFor="let day of calendar.monthDays" [ngClass]="{'today': calendar.isToday(day.date)}"
+         (cdkDropListDropped)="onDrop($event, day)"
+         (click)="onCalenderDayClick(day)"
+         style="width: calc(100% / 7); aspect-ratio: 1;box-sizing: border-box; border: .5px solid #ccc;cursor:pointer;" cdkDropList
+         [cdkDropListData]="day.date">
+                <div *ngIf="day" class="day-card">
+      <div>
+        <div>
+          <div style="padding: 10px">
+            <strong>{{ day.date.getDate() }}  </strong>
+            <small>
+              {{ day.date.toLocaleString('en-US', { month: 'short' }) }}
+            </small>
+          </div>
+          <div
+            class="event"
+            (click)="onEventClicked(event);$event.stopPropagation()"
+            *ngFor="let event of event.getEventsForDay(day.date) "
+            cdkDrag
+            [cdkDragData]="event">
+            {{ event.title }}
+          </div>
+          <!--            </div>-->
+        </div>
+    </div>
+  </div>
