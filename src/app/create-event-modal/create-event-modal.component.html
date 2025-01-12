@@ -1,4 +1,5 @@
-<h2 mat-dialog-title>Create Event</h2>
+<h2 mat-dialog-title *ngIf="!isInEditMode">Create Event</h2>
+<h2 mat-dialog-title *ngIf="isInEditMode">Edit Event </h2>
 <mat-dialog-content [formGroup]="eventForm">
   <div class="event-form">
     <div class="event-form__item">
@@ -47,12 +48,30 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Cancel</button>
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="onAddEvent()">
-    <mat-icon>add</mat-icon>
-    Add
-  </button>
+  <div style="display: flex;justify-content: space-between;width: 100%">
+    <div>
+      <button mat-mini-fab  color="warn" (click)="onDelete()" *ngIf="isInEditMode">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+    <div style="display: flex;align-items: center;justify-content:center ">
+      <button mat-button (click)="onCancel()">Cancel</button>
+      <button
+        *ngIf="!isInEditMode"
+        mat-flat-button
+        color="primary"
+        (click)="onAddEvent()">
+        <mat-icon>add</mat-icon>
+        Add
+      </button>
+      <button
+        *ngIf="isInEditMode"
+        mat-flat-button
+        color="primary"
+        (click)="onUpdate()">
+        <mat-icon>edit</mat-icon>
+        Update
+      </button>
+    </div>
+  </div>
 </mat-dialog-actions>

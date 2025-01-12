@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SharedModule } from './shared/shared.module';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -19,8 +19,13 @@ export class AppComponent implements OnInit,AfterViewInit{
   monthDays: (any)[] = []; // Allow null values in the array
   timeSlots:any = [];
   viewOptions=['day','month']
-  view = 'month'
+  view = 'day'
   @ViewChild('calendar') public calendar!: MatCalendar<Date>;
+  @ViewChild('dayViewContainer') dayViewContainer!: ElementRef;
+  isDragging = false;
+
+
+
   public currentActiveMonth:any= null
 
 
@@ -56,7 +61,6 @@ export class AppComponent implements OnInit,AfterViewInit{
     }
   }
   onAddEventClicked(){
-
     const dialogRef =this.dialog.open(CreateEventModalComponent,{
       width:'600px',
     })
@@ -69,12 +73,33 @@ export class AppComponent implements OnInit,AfterViewInit{
   ngOnInit(): void {
     this.initializeTimeSlots(this.selectedDate);
     setTimeout(()=>{
-      this.eventService.loadEventsFromLocalStorage()
       this.generateMonthDays(this.selectedDate)
     },1000)
   }
   connectedLists = this.monthDays.map((_, i) => `cdk-drop-list-${i}`);
 
+  onTodayClicked(){
+    this.currentActiveMonth = new Date()
+    this.selectedDate = new Date()
+    this.generateMonthDays(this.currentActiveMonth)
+    this.initializeTimeSlots(this.currentActiveMonth)
+    this.calendar._goToDateInView(this.currentActiveMonth,'month')
+  }
+  onNextButtonClicked() {
+    if (this.view === 'day') {
+      // Increment the selected date by 1 day
+      this.selectedDate = new Date(this.selectedDate);
+      this.selectedDate.setDate(this.selectedDate.getDate() + 1);
+    } else if (this.view === 'month') {
+      // Increment the selected date by 1 month
+      this.currentActiveMonth.setMonth(this.currentActiveMonth.getMonth() + 1);
+      this.generateMonthDays(this.currentActiveMonth)
+    }
+  }
+
+  onPrevButtonClicked(){
+
+  }
   getTitle(): string {
     const date = new Date(this.view === 'day' ? this.selectedDate : this.currentActiveMonth);
 
@@ -92,8 +117,11 @@ export class AppComponent implements OnInit,AfterViewInit{
 
 
   onEventClicked(event:any,e:any){
-    e.stopPropagation()
-    console.log(event)
+    if (this.isDragging) {
+      return; // Ignore clicks triggered by drag end
+    }
+    // Handle the actual click
+    console.log('Event clicked:', event);
     const dialogRef = this.dialog.open(CreateEventModalComponent, {
       data: {
         ... event, // Example: pass today's date
@@ -108,6 +136,9 @@ export class AppComponent implements OnInit,AfterViewInit{
   }
 
   onDayContainerClick(day:any){
+    if(this.isDragging){
+      return
+    }
     const dialogRef = this.dialog.open(CreateEventModalComponent, {
       data: {
         date: day.date, // Example: pass today's date
@@ -152,18 +183,33 @@ export class AppComponent implements OnInit,AfterViewInit{
   }
 
 
-  onDaySlotDrop(event:any,timeSlot:any){
-    if (event.previousContainer === event.container)
-    {
-      // If the item is dropped within the same container, reorder the events
-      moveItemInArray(timeSlot.events, event.previousIndex, event.currentIndex);
-    }
-    else
-    {
-      // If the item is dropped into a different container, transfer the event
-      this.eventService.changeEventHour(event.item.data.id,event.container.data)
-    }
+  onDaySlotDrop(event: any) {
+    this.isDragging = true; // Set the flag
+    // Handle drop logic
+    setTimeout(() => this.isDragging = false, 0);
+    console.log(event)
+    // Get the parent element from the ViewChild reference
+    const parentElement = this.dayViewContainer.nativeElement;
+    const draggableElement = event.source.element.nativeElement;
+
+    // Get bounding rectangles
+    const parentRect = parentElement.getBoundingClientRect();
+    const draggableRect = draggableElement.getBoundingClientRect();
+
+    // Calculate the offset from the parent's top edge
+    const offsetFromTop = draggableRect.top - parentRect.top;
+    console.log(draggableRect,parentRect)
+
+    console.log('Offset from top:', offsetFromTop, 'px');
+
+    // Uncomment to stop event propagation
+
+    // Uncomment if you want to transfer event data when dropped in a different container
+    // if (event.previousContainer !== event.container) {
+    //   this.eventService.changeEventHour(event.item.data.id, event.container.data);
+    // }
   }
+
 
   onDrop(event: CdkDragDrop<any[]>, targetDay: any) {
     console.log('eveeeeeeeee',event.container.data)

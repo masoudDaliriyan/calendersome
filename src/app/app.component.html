@@ -1,6 +1,5 @@
 <mat-toolbar color="primary">
-  <div style="    display: flex
-;
+  <div style="display: flex;
     align-items: center;
     gap: 13px;">
     <mat-icon>calendar_today</mat-icon>
@@ -28,35 +27,35 @@
       </div>
     </div>
   <div style="flex:8">
-    <h3 style="text-align: left;margin-top: 15px;margin-bottom: 35px;">
-      {{getTitle()}}
+    <h3 style="text-align: left;margin-top: 15px;margin-bottom: 35px;display: flex;gap: 5px">
+      <button mat-stroked-button (click)="onTodayClicked()">Today</button>
+      <span style="display: flex;align-items: center;justify-content: center;gap: 5px">
+      <button mat-icon-button aria-label="Previous" (click)="onPrevButtonClicked()">
+        <mat-icon>navigate_before</mat-icon>
+      </button>
+        {{getTitle()}}
+        <button mat-icon-button (click)="onNextButtonClicked()" >
+        <mat-icon>navigate_next</mat-icon>
+      </button>
+      </span>
     </h3>
     <ng-container *ngIf="view==='day'">
-      <div class="day-view-container" style="flex:8;position:relative;" cdkDropListGroup (click)="onDayContainerClick({date:selectedDate})" >
+      <div class="day-view-container" style="flex:8;position:relative;" cdkDropListGroup (click)="onDayContainerClick({date:selectedDate})" #dayViewContainer>
         <mat-list>
           <ng-container *ngFor="let slot of timeSlots;let i =index">
-            <mat-list-item>
+            <mat-list-item >
               <div class="time-slot">
                 <span class="hour">{{ slot.hour }}</span>
-                <div class="events">
-                  <!--                <div *ngFor="let event of eventService.getEventsForHour(selectedDate, i)" class="event" cdkDrag [cdkDragData]="event" cdkDragLockAxis="y">-->
-                  <!--                  <span>{{ event.title }}</span>-->
-                  <!--                  <p>{{ event.description }}</p>-->
-                  <!--                </div>-->
-                </div>
               </div>
-            </mat-list-item>
 
-            <mat-divider></mat-divider>
+            </mat-list-item>
+          <mat-divider height="1"></mat-divider>
           </ng-container>
           <div *ngFor="let event of eventService.getEventsForDay(selectedDate)" class="event" cdkDrag
-               [ngStyle]="{
-       'height': getEventHeight(event) + 'px',
-       'top': getEventTop(event) + '%',
-       'position': 'absolute',
-       'right': '0',
-       'width': '94%'
-     }"
+               cdkDragBoundary=".day-view-container"
+               (click)="onEventClicked(event, $event);$event.stopPropagation()"
+               (cdkDragEnded)="onDaySlotDrop($event); $event.event.stopPropagation()"
+               [ngStyle]="{ 'height': getEventHeight(event) + 'px', 'top': getEventTop(event) + '%', 'position': 'absolute', 'right': '0', 'width': '90%' }"
                [cdkDragData]="event" cdkDragLockAxis="y"  >
             <span>{{ event.title }}</span>
             <p>{{ event.description }}</p>
@@ -80,9 +79,12 @@
                   {{ day.date.toLocaleString('en-US', { month: 'short' }) }}
                 </small>
               </div>
-              <div class="event" *ngFor="let event of eventService.getEventsForDay(day.date)" cdkDrag
-                   (click)="onEventClicked(event,$event)"
-                   [cdkDragData]="event">
+              <div
+                class="event"
+                *ngFor="let event of eventService.getEventsForDay(day.date) "
+                cdkDrag
+                (click)="onEventClicked(event, $event);$event.stopPropagation()"
+                [cdkDragData]="event">
                 {{ event.title }}
               </div>
 <!--            </div>-->

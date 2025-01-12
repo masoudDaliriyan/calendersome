@@ -52,7 +52,12 @@ mat-list-item{
   //display: flex;
   font-size: 12px;
   font-weight: 500;
-  height: 18px;
   line-height: 16px;
   transition: background-color 0.1s linear;
+  padding: 2px;
+  opacity: .8;
+}
+
+.mat-divider{
+  border-top-width: .5px;
 }

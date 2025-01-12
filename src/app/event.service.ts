@@ -1,30 +1,37 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EventService {
-  private events: any[] = [];
+  private eventsSubject = new BehaviorSubject<any[]>([]); // Reactive event storage
+  public events$ = this.eventsSubject.asObservable(); // Public observable for event changes
 
   constructor() {
     this.loadEventsFromLocalStorage();
   }
 
   // Load events from localStorage on initialization
-  public loadEventsFromLocalStorage(): void {
+  private loadEventsFromLocalStorage(): void {
     const storedEvents = localStorage.getItem('events');
-    console.log('stored',storedEvents)
+    console.log('Stored events:', storedEvents);
     if (storedEvents) {
-      this.events = JSON.parse(storedEvents);
-      console.log(this.events)
-      console.log('Events loaded from localStorage:', this.events);  // Debugging
+      const parsedEvents = JSON.parse(storedEvents).map((event: any) => ({
+        ...event,
+        start: new Date(event.start), // Ensure start is Date object
+        end: new Date(event.end), // Ensure end is Date object
+      }));
+      this.eventsSubject.next(parsedEvents);
+      console.log('Events loaded from localStorage:', parsedEvents);
     }
   }
 
   // Save events to localStorage after any update
   private saveEventsToLocalStorage(): void {
-    console.log('Saving events to localStorage:', this.events);  // Debugging
-    localStorage.setItem('events', JSON.stringify(this.events));
+    const events = this.eventsSubject.getValue();
+    console.log('Saving events to localStorage:', events);
+    localStorage.setItem('events', JSON.stringify(events));
   }
 
   // Helper function to get start of day
@@ -43,36 +50,44 @@ export class EventService {
 
   // Helper function to get event by its ID
   private getEventById(eventId: number): any | undefined {
-    return this.events.find(event => event.id === eventId);
+    const events = this.eventsSubject.getValue();
+    return events.find(event => event.id === eventId);
   }
 
   // Helper function to filter events by start and end date
   private filterEventsByDate(startOfDay: Date, endOfDay: Date): any[] {
-    return this.events.filter(event =>
+    const events = this.eventsSubject.getValue();
+    return events.filter(event =>
       event.end >= startOfDay && event.start <= endOfDay
     );
   }
 
   // Helper function to generate a new event ID
   private generateNewEventId(): number {
-    return this.events.length > 0 ? Math.max(...this.events.map(e => e.id)) + 1 : 1;
+    const events = this.eventsSubject.getValue();
+    return events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
   }
 
   // Method to add a new event
   addEvent(newEvent: any): void {
+    const events = this.eventsSubject.getValue();
     const eventId = this.generateNewEventId();
     const eventWithId = { ...newEvent, id: eventId };
-    console.log('Adding event:', eventWithId);  // Debugging
-    this.events.push(eventWithId);
+    console.log('Adding event:', eventWithId);
+
+    const updatedEvents = [...events, eventWithId];
+    this.eventsSubject.next(updatedEvents); // Update the BehaviorSubject
     this.saveEventsToLocalStorage();
   }
 
   // Method to update an event
   updateEvent(eventId: number, updatedEvent: any): boolean {
-    const event = this.getEventById(eventId);
-    if (!event) return false;
+    const events = this.eventsSubject.getValue();
+    const eventIndex = events.findIndex(event => event.id === eventId);
+    if (eventIndex === -1) return false;
 
-    Object.assign(event, updatedEvent);
+    events[eventIndex] = { ...events[eventIndex], ...updatedEvent };
+    this.eventsSubject.next([...events]); // Emit updated events
     this.saveEventsToLocalStorage();
     return true;
   }
@@ -94,7 +109,6 @@ export class EventService {
     const event = this.getEventById(eventId);
     if (!event) return false;
 
-    // Ensure newDate is a valid Date
     const validNewDate = new Date(newDate);
     if (isNaN(validNewDate.getTime())) {
       console.error("Invalid date:", newDate);
@@ -128,10 +142,12 @@ export class EventService {
 
   // Method to delete an event by its ID
   deleteEvent(eventId: number): boolean {
-    const eventIndex = this.events.findIndex(event => event.id === eventId);
+    const events = this.eventsSubject.getValue();
+    const eventIndex = events.findIndex(event => event.id === eventId);
     if (eventIndex === -1) return false;
 
-    this.events.splice(eventIndex, 1);
+    events.splice(eventIndex, 1);
+    this.eventsSubject.next([...events]); // Emit updated events
     this.saveEventsToLocalStorage();
     return true;
   }

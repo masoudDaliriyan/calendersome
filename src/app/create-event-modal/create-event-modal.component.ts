@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { EventService } from '../event.service';
@@ -26,7 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   providers: [],
 })
-export class CreateEventModalComponent {
+export class CreateEventModalComponent implements OnInit{
   eventForm: FormGroup;
 
   constructor(
@@ -38,48 +38,85 @@ export class CreateEventModalComponent {
     console.log(this.data)
     this.eventForm = this.fb.group({
       title: [data?.title || '', [Validators.required]],
-      date: [data?.date || '', [Validators.required]],
-      startTime: ['', [Validators.required]],
-      endTime: ['', [Validators.required]],
+      date: [data?.start || '', [Validators.required]],
+      startTime: [data?.start || '', [Validators.required]],
+      endTime: [data?.end || '', [Validators.required]],
     });
   }
+  get isInEditMode(){
+    return this.data?.id && true
+  }
 
-  onAddEvent() {
+  onDelete(){
+    this.eventService.deleteEvent(this.data.id)
+    this.dialogRef.close(); // Close the dialog after deletion
+  }
+
+  onUpdate() {
     if (this.eventForm.valid) {
-      const formValue = this.eventForm.value;
+      const { date, startTime, endTime, title } = this.eventForm.value;
 
-      // Extract the selected date
-      const selectedDate = new Date(formValue.date);
-
-      // Check and extract start and end times
-      const startTime = formValue.startTime instanceof Date ? formValue.startTime : new Date(`1970-01-01T${formValue.startTime}:00`);
-      const endTime = formValue.endTime instanceof Date ? formValue.endTime : new Date(`1970-01-01T${formValue.endTime}:00`);
-
-      // Set the hours and minutes for the start and end times based on selected date
-      const start = new Date(selectedDate);
-      start.setHours(startTime.getHours(), startTime.getMinutes(), 0, 0);
-
-      const end = new Date(selectedDate);
-      end.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0);
-
-      // Construct the new event
-      const newEvent = {
-        title: formValue.title,
-        start,
-        end,
+      // Helper function to combine date with time
+      const combineDateTime = (date: Date, time: string | Date): Date => {
+        const result = new Date(date);
+        if (typeof time === 'string') {
+          const [hours, minutes] = time.split(':').map(Number);
+          result.setHours(hours, minutes, 0, 0);
+        } else {
+          result.setHours(time.getHours(), time.getMinutes(), 0, 0);
+        }
+        return result;
       };
 
-      // Call the event service to add the event
-      this.eventService.addEvent(newEvent);
+      const selectedDate = new Date(date);
+      const start = combineDateTime(selectedDate, startTime);
+      const end = combineDateTime(selectedDate, endTime);
+
+      // Update the event with the modified data
+      this.eventService.updateEvent(this.data.id, {
+        title,
+        start,
+        end,
+        ...this.eventForm.value, // Include other form fields, if any
+      });
 
       // Close the dialog
       this.dialogRef.close();
     }
   }
 
+  onAddEvent() {
+    if (this.eventForm.valid) {
+      const { date, startTime, endTime, title } = this.eventForm.value;
 
+      // Helper function to combine date with time
+      const combineDateTime = (date: Date, time: string | Date): Date => {
+        const result = new Date(date);
+        if (typeof time === 'string') {
+          const [hours, minutes] = time.split(':').map(Number);
+          result.setHours(hours, minutes, 0, 0);
+        } else {
+          result.setHours(time.getHours(), time.getMinutes(), 0, 0);
+        }
+        return result;
+      };
+
+      const selectedDate = new Date(date);
+      const start = combineDateTime(selectedDate, startTime);
+      const end = combineDateTime(selectedDate, endTime);
+
+      // Create the new event and add it
+      this.eventService.addEvent({ title, start, end });
+
+      // Close the dialog
+      this.dialogRef.close();
+    }
+  }
 
   onCancel() {
     this.dialogRef.close();
+  }
+  ngOnInit() {
+    console.log(this.data?.id)
   }
 }
