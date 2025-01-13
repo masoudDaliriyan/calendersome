@@ -37,8 +37,6 @@ export class EventSchedulerHeaderComponent {
   onTodayButtonClicked(){
     this.calendar.selectedDate = new Date()
     this.calendar.updateMonthDays()
-    // this.initializeTimeSlots(this.currentActiveMonth)
-    // this.calendar._goToDateInView(this.currentActiveMonth,'month')
   }
   protected readonly onabort = onabort;
 }

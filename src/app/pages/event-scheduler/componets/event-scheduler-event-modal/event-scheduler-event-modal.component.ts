@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { SharedModule } from '../../../../shared/shared.module';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 import { EventService } from '../../services/event.service';
+import { timeRangeValidator } from '../../../../shared/validators/time-range.validator';
 
 @Component({
   selector: 'app-event-scheduler-event-modal',
@@ -21,12 +22,16 @@ export class EventSchedulerEventModalComponent {
     private eventService: EventService,
     @Inject(MAT_DIALOG_DATA) public data: any // Inject the passed data
   ) {
-    this.eventForm = this.fb.group({
-      title: [data?.title || '', [Validators.required]],
-      date: [data?.date || data?.start || '', [Validators.required]],
-      startTime: [data?.start || '', [Validators.required]],
-      endTime: [data?.end || '', [Validators.required]],
-    });
+    this.eventForm = this.fb.group(
+      {
+        title: [data?.title || '', [Validators.required]],
+        date: [data?.date || data?.start || '', [Validators.required]],
+        startTime: [data?.start || '', [Validators.required]],
+        endTime: [data?.end || '', [Validators.required]],
+      },
+      { validators: timeRangeValidator() } // Apply group-level validator
+    );
+
   }
   get isInEditMode(){
     return this.data?.id && true
@@ -38,6 +43,7 @@ export class EventSchedulerEventModalComponent {
   }
 
   onUpdate() {
+    this.eventForm.markAllAsTouched();
     if (this.eventForm.valid) {
       const { date, startTime, endTime, title } = this.eventForm.value;
 
@@ -71,6 +77,7 @@ export class EventSchedulerEventModalComponent {
   }
 
   onAddEvent() {
+    this.eventForm.markAllAsTouched();
     if (this.eventForm.valid) {
       const { date, startTime, endTime, title } = this.eventForm.value;
 
@@ -104,4 +111,6 @@ export class EventSchedulerEventModalComponent {
   ngOnInit() {
     console.log(this.data?.id)
   }
+
+  protected readonly JSON = JSON;
 }
