@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { DateTimeService } from '../../../shared/services/date-time.service';
+import { UtilsService } from '../../../shared/services/utils.service';
 
 @Injectable({
   providedIn: 'root',
@@ -7,54 +9,44 @@ import { BehaviorSubject } from 'rxjs';
 export class EventService {
   private eventsSubject = new BehaviorSubject<any[]>([]); // Reactive event storage
 
-  constructor() {
+  constructor(public dateTime:DateTimeService,public utils:UtilsService) {
     this.loadEventsFromLocalStorage();
   }
 
-  // Load events from localStorage on initialization
   private loadEventsFromLocalStorage(): void {
-    const storedEvents = localStorage.getItem('events');
-    console.log('Stored events:', storedEvents);
-    if (storedEvents) {
-      const parsedEvents = JSON.parse(storedEvents).map((event: any) => ({
-        ...event,
-        start: new Date(event.start), // Ensure start is Date object
-        end: new Date(event.end), // Ensure end is Date object
-      }));
-      this.eventsSubject.next(parsedEvents);
-      console.log('Events loaded from localStorage:', parsedEvents);
-    }
+    const storedEvents = this.utils.getLocalStorageItem('events')
+    this.initializeEvents(storedEvents)
   }
+
+  initializeEvents(events:any){
+    if(!events) return
+
+    const parsedEvents = events.map((event: any) => ({
+      ...event,
+      start: this.dateTime.parseDate(event.start),
+      end: this.dateTime.parseDate(event.end),
+    }));
+
+    this.eventsSubject.next(parsedEvents);
+  }
+
 
   // Save events to localStorage after any update
   private saveEventsToLocalStorage(): void {
     const events = this.eventsSubject.getValue();
-    console.log('Saving events to localStorage:', events);
-    localStorage.setItem('events', JSON.stringify(events));
+    this.utils.setLocalStorageItem('events', events);
   }
 
   // Helper function to get start of day
-  private getStartOfDay(date: Date): Date {
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    return startOfDay;
-  }
-
-  // Helper function to get end of day
-  private getEndOfDay(date: Date): Date {
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-    return endOfDay;
-  }
-
-  // Helper function to get event by its ID
   private getEventById(eventId: number): any | undefined {
     const events = this.eventsSubject.getValue();
     return events.find(event => event.id === eventId);
   }
 
   // Helper function to filter events by start and end date
-  private filterEventsByDate(startOfDay: Date, endOfDay: Date): any[] {
+  private filterEventsByDate(date:any): any[] {
+    const startOfDay = this.dateTime.getStartOfDay(date);
+    const endOfDay = this.dateTime.getEndOfDay(date);
     const events = this.eventsSubject.getValue();
     return events.filter(event =>
       event.end >= startOfDay && event.start <= endOfDay
@@ -113,9 +105,7 @@ export class EventService {
 
   // Method to get events for a specific day
   getEventsForDay(date: Date): any[] {
-    const startOfDay = this.getStartOfDay(date);
-    const endOfDay = this.getEndOfDay(date);
-    return this.filterEventsByDate(startOfDay, endOfDay);
+    return this.filterEventsByDate(date);
   }
 
   // Method to get events for a specific hour of a day
@@ -131,4 +121,16 @@ export class EventService {
     this.saveEventsToLocalStorage();
     return true;
   }
+
+  calculateNewEventTimes(event: any, elapsedTimeInHour: number) {
+    const startOfDay = this.dateTime.getStartOfDay(event.source.data.start);
+    const newEventStartTime = new Date(startOfDay.getTime() + elapsedTimeInHour * 60 * 60 * 1000);
+    const eventDurationInMinutes = this.dateTime.getDurationInMinutes(event.source.data.start,event.source.data.end);
+    const newEventEndTime = new Date(newEventStartTime.getTime() + eventDurationInMinutes * 60 * 1000);
+
+    return { start: newEventStartTime, end: newEventEndTime };
+  }
+
+
+
 }

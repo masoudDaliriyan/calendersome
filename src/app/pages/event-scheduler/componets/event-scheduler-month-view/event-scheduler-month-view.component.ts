@@ -20,25 +20,15 @@ export class EventSchedulerMonthViewComponent {
   }
 
   onCalenderDayClick(day:any){
-    console.log(day)
-      this.calendar.openEventModal({
-        date: day.date
-      })
+    this.calendar.selectedDate = day.date
+    this.calendar.view ='day'
+      // this.calendar.openEventModal({
+      //   date: day.date
+      // })
   }
 
   onDrop(event: any, targetDay: any) {
-    if (event.previousContainer === event.container)
-    {
-      // If the item is dropped within the same container, reorder the events
-      moveItemInArray(targetDay.events, event.previousIndex, event.currentIndex);
-    }
-    else
-    {
-      // If the item is dropped into a different container, transfer the event
-      console.log('event',event.container.data)
-      this.event.moveEventToAnotherDay(event.item.data.id,event.container.data)
-      // transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
-    }
+    this.event.moveEventToAnotherDay(event.item.data.id,event.container.data)
   }
 
 }

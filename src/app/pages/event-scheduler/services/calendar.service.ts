@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { CreateEventModalComponent } from '../../../create-event-modal/create-event-modal.component';
 import { EventSchedulerEventModalComponent } from '../componets/event-scheduler-event-modal/event-scheduler-event-modal.component';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CalendarService {
-  private _view: 'day' | 'month' = 'month'; // Default view is 'month'
+  private _view: 'day' | 'month' = 'day'; // Default view is 'month'
   private _selectedDate: Date = new Date(); // Default to today
   private _monthDays: { date: Date; events: any[] }[] = [];
 
@@ -56,17 +55,13 @@ export class CalendarService {
 
 
   getTitle(): string {
-    const date = this.selectedDate
+    const isDayView = this.view === 'day';
 
-    if (this.view === 'day') {
-      const dayNumber = date.getDate(); // Get the numeric day of the month
-      const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long' };
-      const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date); // Format without the day
-      return `${dayNumber} ${formattedDate}`; // Combine day number and formatted date
-    }
+    const dateOptions: Intl.DateTimeFormatOptions = isDayView
+      ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+      : { year: 'numeric', month: 'long' };
 
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long' };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
+    return new Intl.DateTimeFormat('en-US', dateOptions).format(this.selectedDate);
   }
 
   private generateMonthDays(date: Date): { date: Date; events: any[] }[] {
@@ -87,14 +82,7 @@ export class CalendarService {
     return monthDays;
   }
 
-  getTimeSlots(): { hour: string }[] {
-    const timeSlots = [];
-    for (let i = 0; i < 24; i++) {
-      const hour = i.toString().padStart(2, '0') + ':00';
-      timeSlots.push({ hour });
-    }
-    return timeSlots;
-  }
+
 
   isToday(date: Date): boolean {
     const today = new Date();
@@ -103,22 +91,6 @@ export class CalendarService {
       date.getMonth() === today.getMonth() &&
       date.getFullYear() === today.getFullYear()
     );
-  }
-
-  calculateEventPosition(event: any): { top: number; height: number } {
-    const startOfDay = new Date(event.start);
-    startOfDay.setHours(0, 0, 0, 0); // Reset to midnight of the same date
-
-    const totalDayDuration = 24 * 60 * 60 * 1000; // Total day duration in milliseconds (24 hours)
-    const elapsedTime = event.start.getTime() - startOfDay.getTime(); // Time elapsed since midnight
-
-    const topPercentage = (elapsedTime / totalDayDuration) * 100;
-
-    const durationInMinutes = (event.end.getTime() - event.start.getTime()) / (1000 * 60);
-    const minutesPerPixel = 0.83; // Adjust as needed
-    const height = durationInMinutes * minutesPerPixel;
-
-    return { top: topPercentage, height };
   }
 
   openEventModal(data: any) {

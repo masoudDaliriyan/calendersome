@@ -1,12 +1,12 @@
-<div style="width: 300px;display: flex">
-  <mat-form-field style="margin-bottom: 0" appearance="outline">
+<div style="width: 100%;display: flex">
+  <mat-form-field style="margin-bottom: 0;width: 100%" appearance="outline">
     <mat-select [(ngModel)]="calendar.view">
       <mat-option value="day">day</mat-option>
       <mat-option value="month">Month</mat-option>
     </mat-select>
   </mat-form-field>
 </div>
-<mat-card style="height:auto;width: 300px;padding: 0">
+<mat-card style="height:auto;width: 100%;padding: 0">
   <mat-calendar
     #matCalendar
     [(selected)]="calendar.selectedDate"
