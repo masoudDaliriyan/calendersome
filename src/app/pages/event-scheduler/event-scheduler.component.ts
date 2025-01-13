@@ -5,6 +5,7 @@ import { EventSchedulerDayViewComponent } from './componets/event-scheduler-day-
 import { CalendarService } from './services/calendar.service';
 import { EventSchedulerMonthViewComponent } from './componets/event-scheduler-month-view/event-scheduler-month-view.component';
 import { SharedModule } from '../../shared/shared.module';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-event-scheduler',
@@ -13,6 +14,7 @@ import { SharedModule } from '../../shared/shared.module';
     EventSchedulerHeaderComponent,
     EventSchedulerDayViewComponent,
     EventSchedulerMonthViewComponent,
+    RouterOutlet,
     SharedModule
   ],
   templateUrl: './event-scheduler.component.html',

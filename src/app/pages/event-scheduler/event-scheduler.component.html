@@ -2,7 +2,6 @@
   <app-event-scheduler-side-bar class="calendar__sidebar"></app-event-scheduler-side-bar>
   <div class="calendar__content">
     <app-event-scheduler-header></app-event-scheduler-header>
-    <app-event-scheduler-day-view *ngIf="calender.isDayView"></app-event-scheduler-day-view>
-    <app-event-scheduler-month-view *ngIf="calender.isMonthView"></app-event-scheduler-month-view>
+    <router-outlet></router-outlet>
   </div>
 </div>

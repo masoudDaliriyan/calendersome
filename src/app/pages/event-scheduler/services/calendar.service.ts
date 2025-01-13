@@ -1,17 +1,21 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EventSchedulerEventModalComponent } from '../componets/event-scheduler-event-modal/event-scheduler-event-modal.component';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CalendarService {
-  private _view: 'day' | 'month' = 'day'; // Default view is 'month'
+  private _view: string = 'month'
   private _selectedDate: Date = new Date(); // Default to today
   private _monthDays: { date: Date; events: any[] }[] = [];
 
-  constructor(public dialog: MatDialog) {
+  constructor(public dialog: MatDialog,public router:Router) {
     this.updateMonthDays();
+    const pathAfterEventScheduler = this.router.url.split('/event-scheduler/')[1] || '';
+    this.view = pathAfterEventScheduler
+
   }
 
   // Getter and Setter for selectedDate
@@ -25,12 +29,13 @@ export class CalendarService {
   }
 
   // Getter and Setter for view
-  get view(): 'day' | 'month' {
+  get view(): any {
     return this._view;
   }
 
-  set view(viewType: 'day' | 'month') {
+  set view(viewType: any) {
     this._view = viewType;
+    this.router.navigate([`/event-scheduler/${this.view}`])
   }
 
   // Check if the current view is day or month
