@@ -1,0 +1,17 @@
+.calendar__month-wrapper {
+  flex: 8;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.calendar__month-block {
+  width: calc(100% / 7);
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  border: 0.5px solid #ccc;
+  cursor: pointer;
+}
+
+.calendar__month-block-date {
+  padding: 10px;
+}

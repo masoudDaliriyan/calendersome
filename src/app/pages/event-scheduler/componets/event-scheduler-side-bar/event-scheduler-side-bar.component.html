@@ -1,18 +1,19 @@
-<div style="width: 100%;display: flex">
-  <mat-form-field style="margin-bottom: 0;width: 100%" appearance="outline">
+<div class="calendar__select-wrapper">
+  <mat-form-field class="calendar__select-form-field" appearance="outline">
     <mat-select [(ngModel)]="calendar.view">
       <mat-option value="day">day</mat-option>
       <mat-option value="month">Month</mat-option>
     </mat-select>
   </mat-form-field>
 </div>
-<mat-card style="height:auto;width: 100%;padding: 0">
+<mat-card class="calendar__side-bar">
   <mat-calendar
+    class="mat-calendar"
     #matCalendar
     [(selected)]="calendar.selectedDate"
-    (selectedChange)="calendar.view='day';"
-                style="padding:20px;"></mat-calendar>
+    (selectedChange)="calendar.view='day';">
+  </mat-calendar>
 </mat-card>
-<div style="text-align: left;padding: 20px 0">
-  <button mat-stroked-button (click)="onAddEventButtonClicked()" >Add Event <mat-icon>add</mat-icon></button>
+<div class="calendar__sidebar-actions">
+  <button mat-stroked-button (click)="onAddEventButtonClicked()">Add Event <mat-icon>add</mat-icon></button>
 </div>
