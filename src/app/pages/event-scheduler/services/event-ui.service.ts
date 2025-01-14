@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DateTimeService } from '../../../shared/services/date-time.service';
+import { CdkDragEnd } from '@angular/cdk/drag-drop';
+import { Event } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -15,13 +17,13 @@ export class EventUiService {
   calculateDividersHeight(elapsedTimeInHour:number){
     return (elapsedTimeInHour + 1) * this.everyDividerHeightInPixel
   }
-  getEventHeight(event: any): number {
+  getEventHeight(event: Event): number {
     const durationInHours = this.dateTime.calculateDurationInHours(event.start,event.end)
     const height = durationInHours  * this.everyHourTimeSlotHeightInPixel
     return height - this.eventElementPaddingY
   }
 
-  getEventTop(event: any): number {
+  getEventTop(event: Event): number {
 
     // Get the start of the day (midnight)
     const startOfDay = this.dateTime.getStartOfDay(event.start);
@@ -36,7 +38,7 @@ export class EventUiService {
     return topInPixels + ((elapsedTimeInMinutes / 60 + 1) * this.everyDividerHeightInPixel);
   }
 
-  calculateEventPosition(event: any, dayViewContainer: HTMLElement) {
+  calculateEventPosition(event: CdkDragEnd, dayViewContainer: HTMLElement) {
     const parentRect = dayViewContainer.getBoundingClientRect();
     const draggableRect = event.source.element.nativeElement.getBoundingClientRect();
 

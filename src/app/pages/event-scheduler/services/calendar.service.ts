@@ -3,14 +3,15 @@ import { MatDialog } from '@angular/material/dialog';
 import { EventSchedulerEventModalComponent } from '../componets/event-scheduler-event-modal/event-scheduler-event-modal.component';
 import { Router } from '@angular/router';
 import { DateTimeService } from '../../../shared/services/date-time.service';
+import { Event } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CalendarService {
-  private _view: string = 'month'
+  private _view  = 'month'
   private _selectedDate: Date = new Date(); // Default to today
-  private _monthDays: { date: Date; events: any[] }[] = [];
+  private _monthDays: { date: Date}[] = [];
 
   constructor(public dialog: MatDialog,public router:Router,public dateTime:DateTimeService) {
     this.updateMonthDays();
@@ -30,11 +31,11 @@ export class CalendarService {
   }
 
   // Getter and Setter for view
-  get view(): any {
+  get view(): string {
     return this._view;
   }
 
-  set view(viewType: any) {
+  set view(viewType: string) {
     this._view = viewType;
     this.router.navigate([`/event-scheduler/${this.view}`])
   }
@@ -67,7 +68,7 @@ export class CalendarService {
     return new Intl.DateTimeFormat('en-US', dateOptions).format(this.selectedDate);
   }
 
-  private generateMonthDays(date: Date): { date: Date; events: any[] }[] {
+  private generateMonthDays(date: Date): { date: Date; events: Event[] }[] {
     const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
     const startDayOfWeek = firstDayOfMonth.getDay(); // Day of the week (0-6, where 0 is Sunday)
 
@@ -91,7 +92,7 @@ export class CalendarService {
     return  this.dateTime.isToday(date)
   }
 
-  openEventModal(data: any) {
+  openEventModal(data: Partial<Event> | null) {
     return this.dialog.open(EventSchedulerEventModalComponent, {
       data: data,
     });

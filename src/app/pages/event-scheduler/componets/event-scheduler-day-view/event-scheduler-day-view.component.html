@@ -12,10 +12,9 @@
          (mouseup)="onEventClicked(event);$event.stopPropagation()"
          (cdkDragEnded)="onDaySlotDrop($event);"
          cdkDragBoundary=".day-view"
-         [ngStyle]="getEventStyle(event,dayViewContainer)"
+         [ngStyle]="getEventStyle(event)"
          [cdkDragData]="event" cdkDragLockAxis="y"  >
       <span>{{ event.title }}</span>
-      <p>{{ event.description }}</p>
     </div>
   </mat-list>
 </div>

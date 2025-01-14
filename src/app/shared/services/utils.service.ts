@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
+import { Event, SaveInLocalStorageEvent } from '../../pages/event-scheduler/models/models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UtilsService {
 
-  getLocalStorageItem(key: string): any {
+  getLocalStorageItem(key: string): SaveInLocalStorageEvent[]|null {
     const item = localStorage.getItem(key);
     if (item) {
       try {
@@ -17,7 +18,7 @@ export class UtilsService {
     return null;
   }
 
-  setLocalStorageItem(key: string, value: any): void {
+  setLocalStorageItem(key: string, value: string | Event[]): void {
     try {
       const jsonString = JSON.stringify(value);
       localStorage.setItem(key, jsonString);

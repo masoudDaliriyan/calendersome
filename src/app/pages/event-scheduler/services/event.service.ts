@@ -2,26 +2,28 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DateTimeService } from '../../../shared/services/date-time.service';
 import { UtilsService } from '../../../shared/services/utils.service';
+import { CdkDragEnd } from '@angular/cdk/drag-drop';
+import { Event, SaveInLocalStorageEvent } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class EventService {
-  private eventsSubject = new BehaviorSubject<any[]>([]); // Reactive event storage
+  private eventsSubject = new BehaviorSubject<Event[]>([]); // Reactive event storage
 
   constructor(public dateTime:DateTimeService,public utils:UtilsService) {
     this.loadEventsFromLocalStorage();
   }
 
   private loadEventsFromLocalStorage(): void {
-    const storedEvents = this.utils.getLocalStorageItem('events')
+    const storedEvents = this.utils.getLocalStorageItem('events') || []
     this.initializeEvents(storedEvents)
   }
 
-  initializeEvents(events:any){
+  initializeEvents(events:SaveInLocalStorageEvent[]){
     if(!events) return
 
-    const parsedEvents = events.map((event: any) => ({
+    const parsedEvents: Event[] = events.map((event: SaveInLocalStorageEvent) => ({
       ...event,
       start: this.dateTime.parseDate(event.start),
       end: this.dateTime.parseDate(event.end),
@@ -38,13 +40,13 @@ export class EventService {
   }
 
   // Helper function to get start of day
-  private getEventById(eventId: number): any | undefined {
+  private getEventById(eventId: string): Event | undefined {
     const events = this.eventsSubject.getValue();
     return events.find(event => event.id === eventId);
   }
 
   // Helper function to filter events by start and end date
-  private filterEventsByDate(date:any): any[] {
+  private filterEventsByDate(date:Date): Event[] {
     const startOfDay = this.dateTime.getStartOfDay(date);
     const endOfDay = this.dateTime.getEndOfDay(date);
     const events = this.eventsSubject.getValue();
@@ -54,16 +56,17 @@ export class EventService {
   }
 
   // Helper function to generate a new event ID
-  private generateNewEventId(): number {
-    const events = this.eventsSubject.getValue();
-    return events.length > 0 ? Math.max(...events.map(e => e.id)) + 1 : 1;
+  private generateNewEventId(): string {
+    const timestamp = Date.now().toString(36); // Convert current time to base-36
+    const random = Math.random().toString(36).substring(2, 8); // Generate a random string
+    return `${timestamp}-${random}`; // Combine timestamp and random string
   }
 
   // Method to add a new event
-  addEvent(newEvent: any): void {
+  addEvent(title:string,start:Date,end:Date): void {
     const events = this.eventsSubject.getValue();
     const eventId = this.generateNewEventId();
-    const eventWithId = { ...newEvent, id: eventId };
+    const eventWithId = {  id: eventId,title,start,end };
     console.log('Adding event:', eventWithId);
 
     const updatedEvents = [...events, eventWithId];
@@ -72,7 +75,7 @@ export class EventService {
   }
 
   // Method to update an event
-  updateEvent(eventId: number, updatedEvent: any): boolean {
+  updateEvent(eventId: string, updatedEvent: object): boolean {
     const events = this.eventsSubject.getValue();
     const eventIndex = events.findIndex(event => event.id === eventId);
     if (eventIndex === -1) return false;
@@ -86,7 +89,7 @@ export class EventService {
   // Method to change an event's start time (hour change)
 
   // Method to move an event to another day
-  moveEventToAnotherDay(eventId: number, newDate: any): boolean {
+  moveEventToAnotherDay(eventId: string, newDate: Date): boolean {
     const event = this.getEventById(eventId);
     if (!event) return false;
 
@@ -104,14 +107,14 @@ export class EventService {
   }
 
   // Method to get events for a specific day
-  getEventsForDay(date: Date): any[] {
+  getEventsForDay(date: Date): Event[] {
     return this.filterEventsByDate(date);
   }
 
   // Method to get events for a specific hour of a day
 
   // Method to delete an event by its ID
-  deleteEvent(eventId: number): boolean {
+  deleteEvent(eventId: string): boolean {
     const events = this.eventsSubject.getValue();
     const eventIndex = events.findIndex(event => event.id === eventId);
     if (eventIndex === -1) return false;
@@ -122,10 +125,11 @@ export class EventService {
     return true;
   }
 
-  calculateNewEventTimes(event: any, elapsedTimeInHour: number) {
-    const startOfDay = this.dateTime.getStartOfDay(event.source.data.start);
+  calculateNewEventTimes(event: CdkDragEnd<Event>, elapsedTimeInHour: number) {
+    const data:Event = event.source.data
+    const startOfDay = this.dateTime.getStartOfDay(data.start);
     const newEventStartTime = new Date(startOfDay.getTime() + elapsedTimeInHour * 60 * 60 * 1000);
-    const eventDurationInMinutes = this.dateTime.getDurationInMinutes(event.source.data.start,event.source.data.end);
+    const eventDurationInMinutes = this.dateTime.getDurationInMinutes(data.start,data.end);
     const newEventEndTime = new Date(newEventStartTime.getTime() + eventDurationInMinutes * 60 * 1000);
 
     return { start: newEventStartTime, end: newEventEndTime };

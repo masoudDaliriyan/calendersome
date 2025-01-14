@@ -5,6 +5,7 @@ import { SharedModule } from '../../../../shared/shared.module';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, NativeDateAdapter } from '@angular/material/core';
 import { EventService } from '../../services/event.service';
 import { timeRangeValidator } from '../../../../shared/validators/time-range.validator';
+import { Event } from '../../models/models';
 
 @Component({
   selector: 'app-event-scheduler-event-modal',
@@ -20,12 +21,12 @@ export class EventSchedulerEventModalComponent {
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<EventSchedulerEventModalComponent>,
     private eventService: EventService,
-    @Inject(MAT_DIALOG_DATA) public data: any // Inject the passed data
+    @Inject(MAT_DIALOG_DATA) public data: Event // Inject the passed data
   ) {
     this.eventForm = this.fb.group(
       {
         title: [data?.title || '', [Validators.required]],
-        date: [data?.start || data?.date  || '', [Validators.required]],
+        date: [data?.start  || '', [Validators.required]],
         startTime: [data?.start || '', [Validators.required]],
         endTime: [data?.end || '', [Validators.required]],
       },
@@ -98,7 +99,8 @@ export class EventSchedulerEventModalComponent {
       const end = combineDateTime(selectedDate, endTime);
 
       // Create the new event and add it
-      this.eventService.addEvent({ title, start, end });
+      this.eventService.addEvent( title, start, end );
+
 
       // Close the dialog
       this.dialogRef.close();

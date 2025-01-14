@@ -35,8 +35,9 @@ export class EventSchedulerHeaderComponent {
     }
   }
   onTodayButtonClicked(){
+    this.calendar.view = 'day'
     this.calendar.selectedDate = new Date()
-    this.calendar.updateMonthDays()
+
   }
   protected readonly onabort = onabort;
 }
