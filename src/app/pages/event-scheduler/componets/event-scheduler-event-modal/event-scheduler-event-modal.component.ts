@@ -25,19 +25,17 @@ export class EventSchedulerEventModalComponent {
     this.eventForm = this.fb.group(
       {
         title: [data?.title || '', [Validators.required]],
-        date: [data?.date || data?.start || '', [Validators.required]],
+        date: [data?.start || data?.date  || '', [Validators.required]],
         startTime: [data?.start || '', [Validators.required]],
         endTime: [data?.end || '', [Validators.required]],
       },
       { validators: timeRangeValidator() } // Apply group-level validator
     );
 
+    console.log(data)
   }
-  get isInEditMode(){
-    if (this.data && this.data?.id){
-      return true
-    }
-    return  false
+  get isInEditMode() {
+    return !!this.data?.id;
   }
 
   onDelete(){
@@ -71,7 +69,6 @@ export class EventSchedulerEventModalComponent {
         title,
         start,
         end,
-        ...this.eventForm.value, // Include other form fields, if any
       });
 
       // Close the dialog
