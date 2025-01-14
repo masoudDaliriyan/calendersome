@@ -1,59 +1,46 @@
-# MasoudDaliriyanAngularTest
+Here’s a GitHub-friendly README template with the demo link:
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.7.
+---
 
-## Development server
+# CalendarSome
 
-To start a local development server, run:
+An interactive calendar application designed for efficient event management and navigation.
 
-```bash
-ng serve
-```
+## 🖥️ Live Demo
+Explore the live application: [CalendarSome](https://calendersome.vercel.app/)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 📋 Features
+- **Day and Month Views**: Switch between daily and monthly calendar views effortlessly.
+- **Event Management**: Add, edit, and delete events with ease.
+- **Drag-and-Drop**: Organize events with intuitive drag-and-drop functionality.
 
-## Code scaffolding
+## 🚀 Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/calendersome.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd calendersome
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Start the development server:
+   ```bash
+   npm start
+   ```
+5. Open your browser and visit: `http://localhost:4200`.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🛠️ Technologies Used
+- **Angular**: Framework for building the application.
+- **Angular Material**: Prebuilt UI components.
+- **CDK Drag-and-Drop**: For event management functionality.
 
-```bash
-ng generate component component-name
-```
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+---
 
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Feel free to replace placeholders (like "your-username") with actual details specific to your GitHub repository.
