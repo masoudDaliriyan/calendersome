@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EventSchedulerEventModalComponent } from '../componets/event-scheduler-event-modal/event-scheduler-event-modal.component';
 import { Router } from '@angular/router';
+import { DateTimeService } from '../../../shared/services/date-time.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,7 @@ export class CalendarService {
   private _selectedDate: Date = new Date(); // Default to today
   private _monthDays: { date: Date; events: any[] }[] = [];
 
-  constructor(public dialog: MatDialog,public router:Router) {
+  constructor(public dialog: MatDialog,public router:Router,public dateTime:DateTimeService) {
     this.updateMonthDays();
     const pathAfterEventScheduler = this.router.url.split('/event-scheduler/')[1] || '';
     this.view = pathAfterEventScheduler
@@ -54,15 +55,12 @@ export class CalendarService {
 
   // Update monthDays array
   updateMonthDays(): void {
-    console.log('updateMonth');
     this._monthDays = this.generateMonthDays(this._selectedDate);
   }
 
 
   getTitle(): string {
-    const isDayView = this.view === 'day';
-
-    const dateOptions: Intl.DateTimeFormatOptions = isDayView
+    const dateOptions: Intl.DateTimeFormatOptions = this.isDayView
       ? { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
       : { year: 'numeric', month: 'long' };
 
@@ -90,12 +88,7 @@ export class CalendarService {
 
 
   isToday(date: Date): boolean {
-    const today = new Date();
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    );
+    return  this.dateTime.isToday(date)
   }
 
   openEventModal(data: any) {

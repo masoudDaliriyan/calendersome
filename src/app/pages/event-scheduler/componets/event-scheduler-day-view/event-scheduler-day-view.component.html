@@ -1,18 +1,18 @@
-<div class="day-view" style="flex:8;position:relative;"  #dayViewContainer  >
+<div class="day-view"   #dayViewContainer>
   <mat-list (mouseup)="onDayContainerClicked()">
     <ng-container *ngFor="let slot of eventUI.getTimeSlots()" >
       <mat-divider ></mat-divider>
       <mat-list-item>
-        <div class="time-slot">
-          <span class="hour"> {{ slot.hour}}</span>
-        </div>
+          {{ slot.hour}}
       </mat-list-item>
     </ng-container>
-    <div *ngFor="let event of event.getEventsForDay(calendar.selectedDate)" class="event" cdkDrag
+    <div *ngFor="let event of event.getEventsForDay(calendar.selectedDate)"
+         class="event"
+         cdkDrag
          (mouseup)="onEventClicked(event);$event.stopPropagation()"
-         (cdkDragEnded)="onDaySlotDrop($event); $event.event.stopPropagation()"
+         (cdkDragEnded)="onDaySlotDrop($event);"
          cdkDragBoundary=".day-view"
-         [ngStyle]="{ 'height':eventUI.getEventHeight(event) + 'px', 'top': eventUI.getEventTop(event,dayViewContainer) + 'px', 'position': 'absolute', 'right': '0', 'width': '90%' ,'border':'none'}"
+         [ngStyle]="getEventStyle(event,dayViewContainer)"
          [cdkDragData]="event" cdkDragLockAxis="y"  >
       <span>{{ event.title }}</span>
       <p>{{ event.description }}</p>

@@ -1,15 +1,13 @@
 body{
     font-family: "Google Sans", Helvetica, Arial, sans-serif;
 }
-.demo-inline-calendar-card {
-  width: 300px;
-  height: 300px;
+.toolbar__content{
+  display: flex;
+  align-items: center;
+  gap: 13px;
 }
-
 .calendar-container {
-  //max-width: 800px;
   margin: 0 auto;
-  //padding: 20px;
 }
 
 mat-card {

@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class DateTimeService {
-  constructor() {}
 
   /**
    * Get the start of the day for a given date.
@@ -60,6 +59,11 @@ export class DateTimeService {
     const newDate = new Date(date);
     newDate.setTime(newDate.getTime() + minutes * 60 * 1000);
     return newDate;
+  }
+  isToday(date: Date): boolean {
+    const startOfToday = this.getStartOfDay(new Date());
+    const startOfDate = this.getStartOfDay(date)
+    return startOfDate.getTime() === startOfToday.getTime();
   }
 
   /**

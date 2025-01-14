@@ -1,8 +1,7 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component} from '@angular/core';
 import { CalendarService } from '../../services/calendar.service';
 import { EventService } from '../../services/event.service';
 import { SharedModule } from '../../../../shared/shared.module';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Router } from '@angular/router';
 
 @Component({
@@ -16,19 +15,17 @@ export class EventSchedulerMonthViewComponent {
   {
   }
 
-  onEventClicked(event:any){
+  onEventClicked(event:any,uiEvent:any){
+    uiEvent.stopPropagation()
     this.calendar.openEventModal(event)
   }
 
   onCalenderDayClick(day:any){
     this.calendar.selectedDate = day.date
-    this.router.navigate(['/event-scheduler/day'])
-      // this.calendar.openEventModal({
-      //   date: day.date
-      // })
+    this.calendar.view = 'day'
   }
 
-  onDrop(event: any, targetDay: any) {
+  onDrop(event: any) {
     this.event.moveEventToAnotherDay(event.item.data.id,event.container.data)
   }
 

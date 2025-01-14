@@ -34,12 +34,15 @@ export class EventSchedulerEventModalComponent {
 
   }
   get isInEditMode(){
-    return this.data?.id && true
+    if (this.data && this.data?.id){
+      return true
+    }
+    return  false
   }
 
   onDelete(){
     this.eventService.deleteEvent(this.data.id)
-    this.dialogRef.close(); // Close the dialog after deletion
+    this.dialogRef.close();
   }
 
   onUpdate() {
@@ -108,9 +111,4 @@ export class EventSchedulerEventModalComponent {
   onCancel() {
     this.dialogRef.close();
   }
-  ngOnInit() {
-    console.log(this.data?.id)
-  }
-
-  protected readonly JSON = JSON;
 }

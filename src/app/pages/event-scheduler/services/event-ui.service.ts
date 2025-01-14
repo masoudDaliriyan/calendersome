@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { DateTimeService } from '../../../shared/services/date-time.service';
-import { elementSelectors } from '@angular/cdk/schematics';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +21,7 @@ export class EventUiService {
     return height - this.eventElementPaddingY
   }
 
-  getEventTop(event: any, day: any): number {
+  getEventTop(event: any): number {
 
     // Get the start of the day (midnight)
     const startOfDay = this.dateTime.getStartOfDay(event.start);

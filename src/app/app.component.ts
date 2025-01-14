@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SharedModule } from './shared/shared.module';
 @Component({

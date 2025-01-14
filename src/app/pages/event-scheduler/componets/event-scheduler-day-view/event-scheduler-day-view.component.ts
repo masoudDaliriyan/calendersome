@@ -2,7 +2,6 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { CalendarService } from '../../services/calendar.service';
 import { EventService } from '../../services/event.service';
-import { elementSelectors } from '@angular/cdk/schematics';
 import { EventUiService } from '../../services/event-ui.service';
 
 @Component({
@@ -30,13 +29,24 @@ export class EventSchedulerDayViewComponent {
     this.calendar.openEventModal(event)
   }
 
+  getEventStyle(event: any, dayViewContainer: any): any {
+    return {
+      height: this.eventUI.getEventHeight(event) + 'px',
+      top: this.eventUI.getEventTop(event) + 'px',
+      position: 'absolute',
+      right: '0',
+      width: '90%',
+      border: 'none',
+    };
+  }
 
   onDaySlotDrop(event: any): void {
+    event.event.stopPropagation()
     this.isDragging = true; // Set the flag to indicate dragging
     setTimeout(() => (this.isDragging = false), 0); // Reset the flag after the operation
 
 
-    const { offsetFromTop, elapsedTimeInHour } = this.eventUI.calculateEventPosition(event, this.dayViewContainer.nativeElement);
+    const {  elapsedTimeInHour } = this.eventUI.calculateEventPosition(event, this.dayViewContainer.nativeElement);
 
     if(elapsedTimeInHour<0) return
 

@@ -2,7 +2,7 @@ import { AfterViewInit, Component, Renderer2, ViewChild } from '@angular/core';
 import { SharedModule } from '../../../../shared/shared.module';
 import { CalendarService } from '../../services/calendar.service';
 import { MatCalendar } from '@angular/material/datepicker';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-event-scheduler-side-bar',
@@ -20,9 +20,6 @@ export class EventSchedulerSideBarComponent implements AfterViewInit{
     this.calendar.openEventModal(null)
   }
 
-  onSelectionChange(value:any){
-    this.router.navigate([`/event-scheduler/${value}`])
-  }
   setHandlerForMatCalendarPrevAndNextButton(){
     const prevButton = document.querySelector('.mat-calendar-previous-button');
 

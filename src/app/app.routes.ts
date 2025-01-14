@@ -20,5 +20,9 @@ export const routes: Routes = [
             .then(m => m.EventSchedulerMonthViewComponent)
       },
     ]
+  },
+  {
+    path: '**',  // Wildcard route for handling invalid paths
+    redirectTo: 'event-scheduler/month' // Redirect invalid paths to 'event-scheduler/month'
   }
 ];
