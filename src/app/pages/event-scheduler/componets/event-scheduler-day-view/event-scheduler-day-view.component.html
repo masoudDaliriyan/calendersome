@@ -10,7 +10,7 @@
          class="event"
          cdkDrag
          (mouseup)="onEventClicked(event);$event.stopPropagation()"
-         (cdkDragEnded)="onDaySlotDrop($event);"
+         (cdkDragEnded)="onDaySlotDrop($event);$event.event.stopPropagation()"
          cdkDragBoundary=".day-view"
          [ngStyle]="getEventStyle(event)"
          [cdkDragData]="event" cdkDragLockAxis="y"  >

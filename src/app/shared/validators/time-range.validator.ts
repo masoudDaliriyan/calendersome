@@ -9,7 +9,7 @@ export function timeRangeValidator(): ValidatorFn {
     const endTime = group.get('endTime')?.value;
 
     if (startTime && endTime && startTime >= endTime) {
-      return { timeRangeInvalid: true }; // Group-level error
+      return { timeRangeInvalid: true };
     }
 
     return null;

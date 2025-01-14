@@ -19,7 +19,7 @@ import { RouterOutlet } from '@angular/router';
 
 export class EventSchedulerComponent {
 
-  constructor(public calender:CalendarService)
+  constructor()
   {
   }
 }

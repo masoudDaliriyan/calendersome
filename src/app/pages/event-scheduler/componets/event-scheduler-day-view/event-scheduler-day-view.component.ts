@@ -43,6 +43,7 @@ export class EventSchedulerDayViewComponent {
   }
 
   onDaySlotDrop(event: CdkDragEnd<Event>): void {
+
     this.isDragging = true; // Set the flag to indicate dragging
     const data:Event = event.source.data
     setTimeout(() => (this.isDragging = false), 0); // Reset the flag after the operation

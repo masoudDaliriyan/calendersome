@@ -37,6 +37,10 @@ export class CalendarService {
 
   set view(viewType: string) {
     this._view = viewType;
+    this.navigateToView()
+  }
+
+  navigateToView(){
     this.router.navigate([`/event-scheduler/${this.view}`])
   }
 

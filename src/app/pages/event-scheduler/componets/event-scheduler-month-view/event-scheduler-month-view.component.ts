@@ -1,3 +1,4 @@
+
 import { Component} from '@angular/core';
 import { CalendarService } from '../../services/calendar.service';
 import { EventService } from '../../services/event.service';
@@ -26,4 +27,9 @@ export class EventSchedulerMonthViewComponent {
     this.calendar.selectedDate = day.date
     this.calendar.view = 'day'
   }
+
+  onDrop(event: CdkDragDrop<Date>) {
+    this.event.moveEventToAnotherDay(event.item.data.id,event.container.data)
+  }
+
 }
